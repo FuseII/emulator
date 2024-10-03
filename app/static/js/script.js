@@ -1,3 +1,5 @@
+
+
 async function updateSliderValue(value) {
     console.log(value)
     let slider = document.getElementById('slider');
@@ -50,3 +52,5 @@ async function updateSliderValue(value) {
     //     alert('Произошла ошибка при регистрации. Пожалуйста, попробуйте снова.');
     // }
 }
+
+window.addEventListener("load",updateSliderValue);

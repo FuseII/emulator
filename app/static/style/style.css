@@ -1,9 +1,10 @@
+
 body {
     font-family: Arial, sans-serif;
     background-color: #fff;
     color: #000;
-    margin: 0;
-    padding: 0;
+    margin: 10px;
+    padding: 10px;
 }
 
 nav {
@@ -15,7 +16,7 @@ nav {
 
 nav a {
     color: #fff;
-    margin: 0 15px;
+    margin: 10px 10px;
     text-decoration: none;
 }
 
@@ -114,3 +115,29 @@ ul {
     justify-content: center;
 }
 
+
+.table-container {
+  overflow: scroll;
+  /*height: 180px;*/
+  /*width: 300px;*/
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  max-width: 300px;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+table thead {
+  position: sticky;
+  inset-block-start: 0;
+  background-color: #ddd;
+}

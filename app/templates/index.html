@@ -6,7 +6,7 @@
     <title>Задание №1</title>
     <link rel="stylesheet" href="../static/style/style.css">
 </head>
-<body>
+<body onload="updateSliderValue()">
 <header>
     <nav>
         <ul class="menu">
@@ -21,8 +21,8 @@
         <h1>Поиск максимума в массиве</h1>
         <div class="slider-container">
             <label for="slider">Введите кол-во элементов в массиве:</label>
-            <input type="range" id="slider" min="3" max="15" value="3" oninput="updateSliderValue(this.value)">
-            <span id="sliderValue">3</span>
+            <input type="range" id="slider" min="6" max="15" value="6" oninput="updateSliderValue(this.value)">
+            <span id="sliderValue">6</span>
         </div>
         <div class="table-container" id="array_1">
             <table>

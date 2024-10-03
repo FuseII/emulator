@@ -16,11 +16,182 @@
         </ul>
     </nav>
 </header>
-<main>
-    <div class="container">
-        <h1>Создание эмулятора работы процессора</h1>
-    </div>
-</main>
+<h1>Задание №1. Поиск максимума в массиве (Архитектура Гарвардская, двухадресная, без знака)</h1>
+<h2>Описание задачи:</h2>
+<p>Написать программу на ассемблере, которая находит максимальный элемент в массиве целых чисел без знака, используя
+    архитектуру Гарвардская и двухадресные команды.</p>
+<h2>Входные данные</h2>
+<p>Массив из 6-15 элементов, хранящийся в памяти данных.</p>
+<h2>Выходные данные</h2>
+<p>Максимальный элемент массива, хранящийся в регистре.</p>
+<h2>Регистры</h2>
+<p>• AX: Используется для хранения текущего элемента массива и результата сравнения.<br>
+    • BX: Указатель на начало массива (хранится в памяти данных).<br>
+    • CX: Счетчик элементов массива.<br>
+    • DX: Хранит максимальный элемент массива.</p>
+<h2>Код:</h2>
+<pre><code><span class="hljs-meta">.model</span> small
+<span class="hljs-meta">.stack</span> <span class="hljs-number">100h</span>
+<span class="hljs-meta">
+.data</span>
+    array <span class="hljs-built_in">dw</span> <span class="hljs-number">10</span>, <span class="hljs-number">5</span>, <span
+            class="hljs-number">2</span>, <span class="hljs-number">8</span>, <span class="hljs-number">12</span>, <span
+            class="hljs-number">7</span>  <span class="hljs-comment">; Массив данных (без знака)</span>
+    array_size <span class="hljs-built_in">dw</span> <span class="hljs-number">6</span>            <span
+            class="hljs-comment">; Размер массива</span>
+    array_ptr <span class="hljs-built_in">dw</span> offset array  <span class="hljs-comment">; Указатель на начало массива</span>
+<span class="hljs-meta">
+.code</span>
+main proc
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, @data         <span
+            class="hljs-comment">; Загрузка сегмента данных</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ds</span>, <span class="hljs-built_in">ax</span>             <span
+            class="hljs-comment">; Установка сегмента данных</span>
+
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">cx</span>, array_size    <span
+            class="hljs-comment">; Загрузка размера массива</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">bx</span>, [array_ptr]     <span
+            class="hljs-comment">; Загрузка указателя на массив</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">dx</span>, [<span class="hljs-built_in">bx</span>]          <span
+            class="hljs-comment">; Инициализация максимального элемента первым элементом</span>
+<span class="hljs-symbol">
+    loop_start:</span>
+        <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, [<span
+            class="hljs-built_in">bx</span>]      <span class="hljs-comment">; Загрузка текущего элемента массива</span>
+        <span class="hljs-keyword">cmp</span> <span class="hljs-built_in">ax</span>, <span
+            class="hljs-built_in">dx</span>          <span class="hljs-comment">; Сравнение с текущим максимальным элементом</span>
+        <span class="hljs-keyword">ja</span> max_found        <span class="hljs-comment">; Если текущий элемент больше - обновляем максимальный</span>
+        <span class="hljs-keyword">add</span> <span class="hljs-built_in">bx</span>, <span class="hljs-number">2</span>            <span
+            class="hljs-comment">; Переход к следующему элементу</span>
+        <span class="hljs-keyword">dec</span> <span class="hljs-built_in">cx</span>              <span
+            class="hljs-comment">; Декремент счетчика</span>
+        <span class="hljs-keyword">jnz</span> loop_start    <span class="hljs-comment">; Цикл по массиву</span>
+<span class="hljs-symbol">
+    max_found:</span>
+        <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, <span
+            class="hljs-built_in">dx</span>          <span class="hljs-comment">; Перемещение максимального элемента в AX</span>
+
+    <span class="hljs-comment">; Вывод результата (добавьте код для вывода результата в соответствии с вашими предпочтениями)</span>
+
+    <span class="hljs-keyword">mov</span> <span class="hljs-number">ah</span>, <span class="hljs-number">4ch</span>            <span
+            class="hljs-comment">; Код прерывания для завершения программы</span>
+    <span class="hljs-keyword">int</span> <span class="hljs-number">21h</span>               <span class="hljs-comment">; Вызов прерывания</span>
+
+main endp
+end main
+</code></pre>
+<h2>Объяснение</h2>
+<ol>
+    <li>Инициализация: Программа загружает сегмент данных, инициализирует CX с размером массива, BX с адресом начала
+        массива (из array_ptr) и DX первым элементом массива.
+    </li>
+    <li>Цикл: В цикле loop_start текущий элемент загружается в AX и сравнивается с DX. Если текущий элемент больше, то
+        DX обновляется.
+    </li>
+    <li>Переход к следующему элементу: BX увеличивается на 2 для перехода к следующему элементу массива (размер слова 2
+        байта).
+    </li>
+    <li>Счетчик: Счетчик CX уменьшается на 1.</li>
+    <li>Проверка счетчика: Если CX не равен нулю, цикл продолжается.</li>
+    <li>Вывод результата: Максимальный элемент находится в регистре AX. Добавьте код для вывода результата по своему
+        усмотрению.
+    </li>
+</ol>
+<h2 id>Заметки:</h2>
+<p>• Гарвардская архитектура: Команды и данные хранятся в разных адресных пространствах. В этом примере, array_ptr
+    хранит адрес начала массива в памяти данных, доступ к которому осуществляется через ds:bx.<br>
+    • Двухадресная команда add: В программе используется add bx, 2 для перехода к следующему элементу массива.<br>
+    • Сравнение без знака: Вместо jg используется ja (jump above), чтобы сравнить числа без учета знака.</p>
+<h1>Задание №2. Свертка двух массивов (Архитектура Гарвардская, двухадресная, без знака)</h1>
+<h2>Описание задачи</h2>
+<p>Написать программу на ассемблере, которая выполняет свертку двух массивов с 6 элементами, содержащих целые числа без
+    знака, используя архитектуру Гарвардская и двухадресные команды.</p>
+<h2>Входные данные</h2>
+<p>Два массива (array1 и array2), хранящихся в памяти данных.</p>
+<h2>Выходные данные Результат свертки, хранящийся в регистре AX.</h2>
+<h2>Регистры</h2>
+<p>• AX: Используется для хранения результата свертки.<br>
+    • BX: Указатель на первый элемент массива array1 (хранится в памяти данных).<br>
+    • CX: Указатель на первый элемент массива array2 (хранится в памяти данных).<br>
+    • DX: Счетчик элементов массива.</p>
+<h2>Код</h2>
+<pre><code><span class="hljs-meta">.model</span> small
+<span class="hljs-meta">.stack</span> <span class="hljs-number">100h</span>
+<span class="hljs-meta">
+.data</span>
+    array1 <span class="hljs-built_in">dw</span> <span class="hljs-number">5</span>, <span class="hljs-number">2</span>, <span
+            class="hljs-number">7</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>, <span
+            class="hljs-number">3</span>  <span class="hljs-comment">; Первый массив (без знака)</span>
+    array2 <span class="hljs-built_in">dw</span> <span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span
+            class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">0</span>, <span
+            class="hljs-number">2</span>  <span class="hljs-comment">; Второй массив (без знака)</span>
+    array_size <span class="hljs-built_in">dw</span> <span class="hljs-number">6</span>           <span
+            class="hljs-comment">; Размер массива</span>
+    array1_ptr <span class="hljs-built_in">dw</span> offset array1 <span class="hljs-comment">; Указатель на начало массива array1</span>
+    array2_ptr <span class="hljs-built_in">dw</span> offset array2 <span class="hljs-comment">; Указатель на начало массива array2</span>
+<span class="hljs-meta">
+.code</span>
+main proc
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, @data         <span
+            class="hljs-comment">; Загрузка сегмента данных</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ds</span>, <span class="hljs-built_in">ax</span>             <span
+            class="hljs-comment">; Установка сегмента данных</span>
+
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">bx</span>, [array1_ptr]  <span
+            class="hljs-comment">; Загрузка указателя на начало массива array1</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">cx</span>, [array2_ptr]  <span
+            class="hljs-comment">; Загрузка указателя на начало массива array2</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">dx</span>, array_size    <span
+            class="hljs-comment">; Загрузка размера массива</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, <span class="hljs-number">0</span>             <span
+            class="hljs-comment">; Инициализация результата свертки</span>
+<span class="hljs-symbol">
+    loop_start:</span>
+        <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, [<span
+            class="hljs-built_in">bx</span>]      <span class="hljs-comment">; Загрузка текущего элемента array1</span>
+        <span class="hljs-keyword">mul</span> [<span class="hljs-built_in">cx</span>]              <span
+            class="hljs-comment">; Умножение текущих элементов</span>
+        <span class="hljs-keyword">add</span> <span class="hljs-built_in">ax</span>, <span
+            class="hljs-built_in">ax</span>          <span class="hljs-comment">; Сложение с результатом свертки</span>
+        <span class="hljs-keyword">add</span> <span class="hljs-built_in">bx</span>, <span class="hljs-number">2</span>            <span
+            class="hljs-comment">; Переход к следующему элементу array1</span>
+        <span class="hljs-keyword">add</span> <span class="hljs-built_in">cx</span>, <span class="hljs-number">2</span>            <span
+            class="hljs-comment">; Переход к следующему элементу array2</span>
+        <span class="hljs-keyword">dec</span> <span class="hljs-built_in">dx</span>              <span
+            class="hljs-comment">; Декремент счетчика</span>
+        <span class="hljs-keyword">jnz</span> loop_start    <span class="hljs-comment">; Продолжение цикла, если не все элементы обработаны</span>
+
+    <span class="hljs-comment">; Результат свертки хранится в AX</span>
+    <span class="hljs-comment">; Вывод результата (добавьте код для вывода результата в соответствии с вашими предпочтениями)</span>
+
+    <span class="hljs-keyword">mov</span> <span class="hljs-number">ah</span>, <span class="hljs-number">4ch</span>            <span
+            class="hljs-comment">; Код прерывания для завершения программы</span>
+    <span class="hljs-keyword">int</span> <span class="hljs-number">21h</span>               <span class="hljs-comment">; Вызов прерывания</span>
+
+main endp
+end main
+</code></pre>
+<h2>Объяснение:</h2>
+<ol>
+    <li>Инициализация: Программа загружает сегмент данных, инициализирует BX, CX, DX и AX начальными значениями.</li>
+    <li>Цикл: В цикле loop_start текущие элементы массивов array1 и array2 умножаются, результат складывается с
+        результатом свертки (AX).
+    </li>
+    <li>Переход к следующему элементу: BX и CX увеличиваются на 2 для перехода к следующему элементу.</li>
+    <li>Счетчик: Счетчик DX уменьшается на 1.</li>
+    <li>Проверка счетчика: Если DX не равен нулю, цикл продолжается.</li>
+    <li>Вывод результата: Результат свертки хранится в регистре AX. Добавьте код для вывода результата по своему
+        усмотрению.
+    </li>
+</ol>
+<h2>Заметки:</h2>
+<p>• Гарвардская архитектура: Команды и данные хранятся в разных адресных пространствах. В этом примере, array1_ptr и
+    array2_ptr хранят адреса начала массивов в памяти данных, доступ к которым осуществляется через ds:bx и ds:cx.<br>
+    • Двухадресная команда add: В программе используются add bx, 2 и add cx, 2 для перехода к следующему элементу
+    массива.<br>
+    • Числа без знака: Программа использует числа без знака, поэтому нет необходимости в команде mul (умножение без
+    знака).</p>
+
 <footer>
     <p>&copy; A.Ryanov A.Kutepov @All rights reserved.</p>
 </footer>
