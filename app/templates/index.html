@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задание №1</title>
+    <link rel="stylesheet" href="../static/style/style.css">
+</head>
+<body>
+<header>
+    <nav>
+        <ul class="menu">
+            <li><a href="/">Задание №1</a></li>
+            <li><a href="#">Задание №2</a></li>
+            <li><a href="/pages/about">О программе</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <div class="container">
+        <h1>Поиск максимума в массиве</h1>
+        <div class="slider-container">
+            <label for="slider">Введите кол-во элементов в массиве:</label>
+            <input type="range" id="slider" min="3" max="15" value="3" oninput="updateSliderValue(this.value)">
+            <span id="sliderValue">3</span>
+        </div>
+        <div class="table-container" id="array_1">
+            <table>
+                <thead>
+                <tr>
+                    <th>Элемент 1</th>
+                    <th>Элемент 2</th>
+                    <th>Элемент 3</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><input type="number" min="0" step="1" id="element1"/></td>
+                    <td><input type="number" min="0" step="1" id="element2"/></td>
+                    <td><input type="number" min="0" step="1" id="element3"/></td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+        <div>
+            <h2>Введите ваш код:</h2>
+            <textarea class="code-input" placeholder="Введите ваш код здесь..."></textarea>
+        </div>
+
+        <button class="button" onclick="calculate()">Вычислить</button>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>AX</th>
+                    <th>BX</th>
+                    <th>CX</th>
+                    <th>DX</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="output-container">
+                <label for="output">Вывод:</label>
+                <input type="text" id="output" readonly/>
+            </div>
+        </div>
+    </div>
+</main>
+<footer>
+    <p>&copy; A.Ryanov A.Kutepov @All rights reserved.</p>
+</footer>
+<script src="../static/js/script.js"></script>
+</body>
+</html>
