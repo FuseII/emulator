@@ -54,7 +54,7 @@ th, td {
     resize: both;
 }
 
-.button {
+.button , .submit-button {
     margin-top: 10px;
     padding: 10px 20px;
     background-color: #000;

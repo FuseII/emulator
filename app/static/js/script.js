@@ -1,7 +1,9 @@
-
+const clickButton = document.querySelector('button');
+clickButton.addEventListener('click', calculate);
 
 async function updateSliderValue(value) {
     console.log(value)
+    console.log(clickButton.id)
     let slider = document.getElementById('slider');
     let output = document.getElementById('sliderValue');
     output.innerHTML = slider.value;
@@ -10,7 +12,8 @@ async function updateSliderValue(value) {
     let trs = ""
     for (let i = 0; i < slider.value; i++) {
         ths += "<th>" + "Элемент " + i + "</th>";
-        trs += "<td><input type='number' min='0' step='1' id={'element'+i}/></td>";
+        let element_id = 'element_' + i.toString();
+        trs += "<td><input type='number' min='0' step='1'  value='0' id=" + element_id + "></td>";
         // trs += "<td>" + i + "</td>";
     }
     let talble = "<table><thead><tr>" + ths + "</thead><tbody><tr>" + trs + "</tbody></table>";
@@ -53,4 +56,48 @@ async function updateSliderValue(value) {
     // }
 }
 
-window.addEventListener("load",updateSliderValue);
+// window.addEventListener("load", updateSliderValue);
+
+async function calculate(event) {
+    console.log("btn");
+    const data = []
+
+    var table = document.getElementById("array_1");
+    for (var i = 1, row; row = table.rows[i]; i++) {
+        for (var j = 0, col; col = row.cells[j]; j++) {
+            const input = col.querySelector('input');
+            data.push(parseInt(input.value, 10)); // Получаем значение из input и преобразуем в число
+        }
+    }
+    console.log(data); // Вывод двумерного массива с данными из таблицы
+
+     try {
+        const response = await fetch('/pages/calculate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        // Проверяем успешность ответа
+        if (!response.ok) {
+            // Получаем данные об ошибке
+            const errorData = await response.json();
+            console.log(errorData);  // Отображаем ошибки alert
+            return;  // Прерываем выполнение функции
+        }
+
+        const result = await response.json();
+
+        if (result.message) {
+            console.log(result.message);
+        } else {
+            alert('Неизвестная ошибка');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка ');
+    }
+
+}

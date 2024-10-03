@@ -24,8 +24,8 @@
             <input type="range" id="slider" min="6" max="15" value="6" oninput="updateSliderValue(this.value)">
             <span id="sliderValue">6</span>
         </div>
-        <div class="table-container" id="array_1">
-            <table>
+        <div class="table-container" >
+            <table id="array_1">
                 <thead>
                 <tr>
                     <th>Элемент 1</th>
@@ -35,9 +35,9 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td><input type="number" min="0" step="1" id="element1"/></td>
-                    <td><input type="number" min="0" step="1" id="element2"/></td>
-                    <td><input type="number" min="0" step="1" id="element3"/></td>
+                    <td><input type="number" min="0" step="1" id="element1" value="0"></td>
+                    <td><input type="number" min="0" step="1" id="element2" value="0"/></td>
+                    <td><input type="number" min="0" step="1" id="element3" value="0"/></td>
                 </tr>
                 </tbody>
             </table>
@@ -47,8 +47,7 @@
             <h2>Введите ваш код:</h2>
             <textarea class="code-input" placeholder="Введите ваш код здесь..."></textarea>
         </div>
-
-        <button class="button" onclick="calculate()">Вычислить</button>
+        <button id="calculate-button" class="button" >Вычислить</button>
         <div class="table-container">
             <table>
                 <thead>

@@ -18,3 +18,7 @@ async def task_2(request: Request):
 async def about(request: Request):
     return templates.TemplateResponse(name='about.html',
                                       context={'request': request})
+
+@router.post('/calculate')
+async def calculate(data):
+    return {"message": data}
