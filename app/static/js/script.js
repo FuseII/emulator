@@ -1,9 +1,12 @@
-const clickButton = document.querySelector('button');
-clickButton.addEventListener('click', calculate);
+// const clickButton = document.querySelector('button');
+// clickButton.addEventListener('click', calculate);
+// clickButton.addEventListener('click', calculate);
+const enterDataButton = document.getElementById("enter-data-button")
+enterDataButton.addEventListener('click', enterData);
 
 async function updateSliderValue(value) {
     console.log(value)
-    console.log(clickButton.id)
+    // console.log(clickButton.id)
     let slider = document.getElementById('slider');
     let output = document.getElementById('sliderValue');
     output.innerHTML = slider.value;
@@ -58,11 +61,12 @@ async function updateSliderValue(value) {
 
 // window.addEventListener("load", updateSliderValue);
 
-async function calculate(event) {
+async function enterData(event) {
     console.log("btn");
     const data = []
 
     var table = document.getElementById("array_1");
+    var data_output = document.getElementById("enter-data-output");
     for (var i = 1, row; row = table.rows[i]; i++) {
         for (var j = 0, col; col = row.cells[j]; j++) {
             const input = col.querySelector('input');
@@ -70,6 +74,7 @@ async function calculate(event) {
         }
     }
     console.log(data); // Вывод двумерного массива с данными из таблицы
+    let send_data = {"data":data}
 
      try {
         const response = await fetch('/pages/calculate', {
@@ -77,7 +82,7 @@ async function calculate(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(send_data)
         });
 
         // Проверяем успешность ответа
@@ -92,6 +97,7 @@ async function calculate(event) {
 
         if (result.message) {
             console.log(result.message);
+            data_output.value = result.message;
         } else {
             alert('Неизвестная ошибка');
         }
