@@ -49,13 +49,29 @@
          </div>
         <div>
             <h2>Введите ваш код:</h2>
-            <textarea class="code-input" placeholder="Введите ваш код здесь..."></textarea>
+            <textarea class="code-input" id="code_text" placeholder="Введите ваш код здесь..."> mov cx, array_size    ; Загрузка размера массива
+    mov bx, [array_ptr]     ; Загрузка указателя на массив
+    mov dx, [bx]          ; Инициализация максимального элемента первым элементом
+
+    loop_start:
+        mov ax, [bx]      ; Загрузка текущего элемента массива
+        cmp ax, dx          ; Сравнение с текущим максимальным элементом
+        ja max_found        ; Если текущий элемент больше - обновляем максимальный
+        add bx, 2            ; Переход к следующему элементу
+        dec cx              ; Декремент счетчика
+        jnz loop_start    ; Цикл по массиву
+
+    max_found:
+        mov ax, dx          ; Перемещение максимального элемента в AX
+</textarea>
         </div>
-        <button id="calculate-button" class="button" >Вычислить</button>
+        <button id="reset-button" class="button" >Начать программу сначала</button>
+        <button id="calculate-button" class="button" >Выполнить следующую команду</button>
         <div class="table-container">
             <table>
                 <thead>
                 <tr>
+                    <th>PC</th>
                     <th>AX</th>
                     <th>BX</th>
                     <th>CX</th>
@@ -67,12 +83,14 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
                 </tbody>
             </table>
             <div class="output-container">
-                <label for="output">Вывод:</label>
-                <input type="text" id="output" readonly/>
+                <label for="program_output_info">Вывод:</label>
+                <input type="text" id="program_output_info" readonly/>
             </div>
         </div>
     </div>

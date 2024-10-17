@@ -4,6 +4,10 @@
 const enterDataButton = document.getElementById("enter-data-button")
 enterDataButton.addEventListener('click', enterData);
 
+const calculateButton = document.getElementById("calculate-button")
+calculateButton.addEventListener('click', next_step);
+
+
 async function updateSliderValue(value) {
     console.log(value)
     // console.log(clickButton.id)
@@ -74,10 +78,15 @@ async function enterData(event) {
         }
     }
     console.log(data); // Вывод двумерного массива с данными из таблицы
-    let send_data = {"data":data}
 
+
+    let code_text = document.getElementById("code_text");
+    console.log(code_text.value);
+    let text = code_text.value
+    let send_data = {"array":data,"text":text};
+    //GET запрос?
      try {
-        const response = await fetch('/pages/calculate', {
+        const response = await fetch('/pages/enter_data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -98,6 +107,46 @@ async function enterData(event) {
         if (result.message) {
             console.log(result.message);
             data_output.value = result.message;
+        } else {
+            alert('Неизвестная ошибка');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка ');
+    }
+
+}
+
+
+async function next_step(event) {
+
+    let code_text = document.getElementById("code_text");
+    console.log(code_text.value);
+    let text = code_text.value
+    let send_data = {"text":text}
+    let program_output_info = document.getElementById("program_output_info");
+
+     try {
+        const response = await fetch('/pages/next_step', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(send_data)
+        });
+
+        // Проверяем успешность ответа
+        if (!response.ok) {
+            // Получаем данные об ошибке
+            const errorData = await response.json();
+            console.log(errorData);  // Отображаем ошибки alert
+            return;  // Прерываем выполнение функции
+        }
+        const result = await response.json();
+
+        if (result.message) {
+            console.log(result.message);
+            program_output_info.value = result.message;
         } else {
             alert('Неизвестная ошибка');
         }

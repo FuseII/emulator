@@ -4,6 +4,7 @@ from fastapi import APIRouter, Request, Depends, UploadFile, Response, Body
 from fastapi.exceptions import ValidationException, HTTPException
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
+from app.service.code_analyzer import initialization, next_step, DATA_MEMORY, PROGRAM_MEMORY
 
 router = APIRouter(prefix='/pages', tags=['Фронтенд'])
 templates = Jinja2Templates(directory=r'D:\Artem\Magistrature\1_sem\Software_arch\my_labs\emulator\app\templates')
@@ -26,12 +27,28 @@ async def about(request: Request):
                                       context={'request': request})
 
 
-class Calculate(BaseModel):
-    # data: str = Field(..., min_length=1)
-    data: List[int]
+class Data(BaseModel):
+    array: List[int]
+    text: str
 
 
-@router.post('/calculate')
-async def calculate(text: Calculate = Body()):
-    message = f"Массив размера {len(text.data)} с элементами {text.data} успешно загружен в память"
-    return {"status":200,"message": message}
+
+
+@router.post('/enter_data')
+async def enter_data(data: Data):
+    message = f"Массив размера {len(data.array)} с элементами {data.array} успешно загружен в память"
+    initialization(array=data.array,code=data.text)
+    print("DATA_MEMORY = {}".format(DATA_MEMORY))
+    return {"status": 200, "message": message}
+
+
+
+
+@router.post('/next_step')
+async def step(data: Data = Body()):
+    next_step()
+    pass
+    # text = data.text
+    # initialization(code=text)
+    # message = f"Код получен {data.text}"
+    # return {"status": 200, "message": message}
