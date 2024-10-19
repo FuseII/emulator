@@ -49,20 +49,21 @@
          </div>
         <div>
             <h2>Введите ваш код:</h2>
-            <textarea class="code-input" id="code_text" placeholder="Введите ваш код здесь..."> mov cx, array_size    ; Загрузка размера массива
-    mov bx, [array_ptr]     ; Загрузка указателя на массив
-    mov dx, [bx]          ; Инициализация максимального элемента первым элементом
+            <textarea class="code-input" id="code_text" placeholder="Введите ваш код здесь...">next_element:
+    inc bx                                 ; переходим к следующему элементу
+    cmp bx, cx                            ; проверяем, достигли ли конца массива
+    jge finish                              ; если достигли конца, выходим из цикла
 
-    loop_start:
-        mov ax, [bx]      ; Загрузка текущего элемента массива
-        cmp ax, dx          ; Сравнение с текущим максимальным элементом
-        ja max_found        ; Если текущий элемент больше - обновляем максимальный
-        add bx, 2            ; Переход к следующему элементу
-        dec cx              ; Декремент счетчика
-        jnz loop_start    ; Цикл по массиву
+    mov dx, [bx]                  ; загружаем текущий элемент
+    cmp ax, dx                              ; сравниваем с текущим максимумом
+    jge next_element                        ; если текущий элемент меньше, переходим к следующему
 
-    max_found:
-        mov ax, dx          ; Перемещение максимального элемента в AX
+    mov ax, dx                              ; обновляем максимум
+
+    jmp next_element                        ; продолжаем цикл
+
+finish:
+	ret
 </textarea>
         </div>
         <button id="reset-button" class="button" >Начать программу сначала</button>

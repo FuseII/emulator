@@ -121,19 +121,13 @@ async function enterData(event) {
 async function next_step(event) {
 
     let code_text = document.getElementById("code_text");
-    console.log(code_text.value);
+    console.log("next step");
     let text = code_text.value
     let send_data = {"text":text}
     let program_output_info = document.getElementById("program_output_info");
 
      try {
-        const response = await fetch('/pages/next_step', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(send_data)
-        });
+        const response = await fetch('/pages/next_step');
 
         // Проверяем успешность ответа
         if (!response.ok) {
