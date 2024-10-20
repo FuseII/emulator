@@ -1,11 +1,15 @@
 from typing import List
 
+from app.exceptions import CommandException
+
 PC = 0  # Program counter - счётчик команд
 REGISTERS = {}  # Регистры и их значения
 DATA = {}  # Память для данных
 PROGRAM_MEMORY = {}  # Память для программы
 PROGRAM_COMMANDS = []  # Последовательность комманд List[{opcode:'mov',operands:[ax,bx]}]
 FLAGS = {}  # Флаги для функции cmp(сравнения) и переходов
+PROGRAM_FINISHED = False
+ARRAY_SIZE = 0
 
 
 def is_register(operand: str) -> bool:
@@ -47,7 +51,7 @@ def jump_to_label(label: str) -> None:
             PC = i
             return
         i += 1
-    print("Exception! No such label {}".format(label))
+    raise CommandException("Нет такой метки '{}'".format(label))
 
 
 def make_jnz(command: dict) -> None:
@@ -108,70 +112,100 @@ def make_cmp(command: dict):
         FLAGS['SF'] = 0
 
 
-def make_mov(command: dict)->None:
+def make_mov(command: dict) -> None:
     """Команда MOV в ассемблере перемещает значение из источника в приёмник. Она копирует содержимое источника
      и помещает его в приёмник, не изменяя при этом никакие флаги.
      Источником и приёмником могут быть регистры общего назначения, сегментные регистры или области памяти."""
     if len(command['operands']) != 2:
-        print("Exception! В компнде mov не соответсвие кол-ву опрендов")
+        raise CommandException(
+            msg="В команде mov несоответствие кол-ву операндов: {}. Должно быть 2".format(len(command['operands'])))
     op1 = command['operands'][0]
     op2 = command['operands'][1]
     global PC
     if not is_register(op1):  # левый операнд должен быть регистром
-        print("Exception! левый операнд не является регистром")
+        CommandException(msg="Левый операнд {} не является регистром в команде {}".format(op1, command['opcode']))
 
     if is_register(op1) and is_register(op2):  # если два операнда регистры
         REGISTERS[op1] = REGISTERS[op2]
     elif op2[0] == '[' and op2[
         -1] == ']':  # если правый операнд является указателем - получить значение из памяти данных
         op2 = op2[1:-1]
+        print(REGISTERS)
         REGISTERS[op1] = DATA[REGISTERS[op2]]
+
     elif op2.isdigit():  # # если правый операнд является числом
         REGISTERS[op1] = op2
     else:
-        print("Exception! Incorrect operands {} {}".format(op1, op2))
-    print("Команда mov с операндами {} {} выполнена успешно".format(op1, op2))
-    print("Счётчик команд увеличин PC = {}".format(PC))
+        raise CommandException(msg="Некорректные операнды в команде {} '{}' '{}'".format(command['opcode'], op1, op2))
 
 
-def next_step()->None:
+def make_command(command: dict) -> bool:
+    finished = False
+    if command['opcode'] == 'mov':
+        make_mov(command)
+    elif command['opcode'] == 'cmp':
+        make_cmp(command)
+    elif command['opcode'] == 'ja':
+        make_ja(command)
+    elif command['opcode'] == 'add':
+        make_add(command)
+    elif command['opcode'] == 'dec':
+        make_dec(command)
+    elif command['opcode'] == 'jnz':
+        make_jnz(command)
+    elif command['opcode'] == 'jge':
+        make_jge(command)
+    elif command['opcode'] == 'inc':
+        make_inc(command)
+    elif command['opcode'] == 'jmp':
+        jump_to_label(label=command['operands'][0] + ':')
+    elif command['opcode'][-1] == ':':
+        pass
+    elif command['opcode'] == 'ret':
+        print("Program finished")
+        finished = True
+    else:
+        raise CommandException("No such command {}".format(command['opcode']))
+    global PC
+    PC = PC + 1
+    return finished
+
+
+def next_step() -> dict:
     """Пошаговое выполнение программы. Конечный автомат"""
     global PC
-    while True:
+    global PROGRAM_FINISHED
+    if not PROGRAM_FINISHED:
         command = PROGRAM_COMMANDS[PC]
         print(command)
-        if command['opcode'] == 'mov':
-            make_mov(command)
-        elif command['opcode'] == 'cmp':
-            make_cmp(command)
-        elif command['opcode'] == 'ja':
-            make_ja(command)
-        elif command['opcode'] == 'add':
-            make_add(command)
-        elif command['opcode'] == 'dec':
-            make_dec(command)
-        elif command['opcode'] == 'jnz':
-            make_jnz(command)
-        elif command['opcode'] == 'jge':
-            make_jge(command)
-        elif command['opcode'] == 'inc':
-            make_inc(command)
-        elif command['opcode'] == 'jmp':
-            jump_to_label(label=command['operands'][0] + ':')
-        elif command['opcode'][-1] == ':':
-            pass
-        elif command['opcode'] == 'ret':
-            print("Program finished")
-            break
-        else:
-            print("Exception! No such command {}".format(command['opcode']))
-        PC = PC + 1
+        PROGRAM_FINISHED = make_command(command)
+    print("REGISTERS = {}".format(REGISTERS))
+    print("FLAGS = {}".format(FLAGS))
+    print("PC = {}".format(PC))
+    print("PROGRAM_FINISHED = {}".format(PROGRAM_FINISHED))
+    operands=''
+    for operand in command["operands"]:
+        operands+=' ' + operand
+    message = "Команда {} с операндами: {} выполнена успешно".format(command["opcode"], operands)
+    return {"finished": PROGRAM_FINISHED, "message": message}
+
+
+def run_all() -> None:
+    reset()
+    global PROGRAM_FINISHED, PC, PROGRAM_COMMANDS
+    print("PC = {}".format(PC))
+    print("PROGRAM_COMMANDS = {}".format(PROGRAM_COMMANDS))
+    while not PROGRAM_FINISHED:
+        command = PROGRAM_COMMANDS[PC]
+        print(command)
+        PROGRAM_FINISHED = make_command(command)
     print("REGISTERS = {}".format(REGISTERS))
     print("FLAGS = {}".format(FLAGS))
 
 
-def make_program(commands_lines: List[str])->None:
+def make_program(commands_lines: List[str]) -> None:
     """Создание списка команд: PROGRAM_COMMANDS[] -> List[{opcode:'mov',operands:[ax,bx]}]"""
+    global PROGRAM_COMMANDS
     for command in commands_lines:
         opcode = command.split()[0]
         operands_list = []
@@ -183,7 +217,7 @@ def make_program(commands_lines: List[str])->None:
         PROGRAM_COMMANDS.append({'opcode': opcode, 'operands': operands_list})
 
 
-def is_operand(operand)->bool:
+def is_operand(operand) -> bool:
     """Является ли операнд корректным"""
     return True  # Заглушка
     print(operand)
@@ -194,7 +228,7 @@ def is_operand(operand)->bool:
 
     if operand[0] == '[' and operand[-1] == ']':
         operand = operand[1:-1]
-        print("OPERAND CHANGED! {}".format(operand))
+        # print("OPERAND CHANGED! {}".format(operand))
     # проверим есть ли в операнде допустимые символы: буквы, цифры, знак нижнего подчеркивания
     for ch in operand:
         if not ch.isalpha() and not ch.isdigit() and ch != '_':
@@ -202,30 +236,42 @@ def is_operand(operand)->bool:
     return True
 
 
-def split_commands(code: str)->List[str]:
+def split_commands(code: str) -> List[str]:
     """Выделение кода из текста, удаление комментариев"""
-    lines = code.split('\n') # сначала по строкам
+    lines = code.split('\n')  # сначала по строкам
     commands = []
     # print(lines)
     for line in lines:
-        cmd = line.split(';')[0].strip() # выделение команды, отбрасывание комментариев
+        cmd = line.split(';')[0].strip()  # выделение команды, отбрасывание комментариев
         if len(cmd):
             commands.append(cmd)
     print("commands = {}".format(commands))
     return commands
 
 
-def initialization(array: List[int], code: str)->None:
-    """Инициализация данных/регистров/флагов"""
-    DATA.clear()
+def reset() -> None:
+    global PC
+    PC = 0
+    global PROGRAM_FINISHED, REGISTERS
+    PROGRAM_FINISHED = False
+    FLAGS.clear()
     REGISTERS.clear()
-    REGISTERS['array_size'] = len(array)
-    REGISTERS['array'] = array
-    REGISTERS['length'] = len(array)
-    REGISTERS['array_ptr'] = 0
     REGISTERS['bx'] = 0  # указатель на массив
-    REGISTERS['cx'] = len(array)  # размер массива
+    REGISTERS['cx'] = ARRAY_SIZE  # размер массива
     REGISTERS['ax'] = 0  # текущий максимум (результат)
+
+
+def initialization(array: List[int], code: str) -> None:
+    """Инициализация данных/регистров/флагов"""
+    global PROGRAM_COMMANDS, ARRAY_SIZE
+    ARRAY_SIZE = len(array)
+    reset()
+    # REGISTERS['array'] = array
+    # REGISTERS['length'] = len(array)
+    # REGISTERS['array_ptr'] = 0
+    # REGISTERS['bx'] = 0  # указатель на массив
+    # REGISTERS['cx'] = ARRAY_SIZE  # размер массива
+    # REGISTERS['ax'] = 0  # текущий максимум (результат)
     for i, x in enumerate(array):
         DATA[i] = x
     commands_lines = split_commands(code)

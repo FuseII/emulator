@@ -4,7 +4,9 @@ from fastapi import APIRouter, Request, Depends, UploadFile, Response, Body
 from fastapi.exceptions import ValidationException, HTTPException
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
-from app.service.code_analyzer import initialization, next_step, REGISTERS, DATA, PROGRAM_MEMORY
+
+from app.exceptions import CommandException
+from app.service.code_analyzer import initialization, next_step,reset, run_all, REGISTERS, DATA, PROGRAM_MEMORY, PROGRAM_FINISHED
 
 router = APIRouter(prefix='/pages', tags=['Фронтенд'])
 templates = Jinja2Templates(directory=r'D:\Artem\Magistrature\1_sem\Software_arch\my_labs\emulator\app\templates')
@@ -46,11 +48,34 @@ async def enter_data(data: Data):
 
 @router.get('/next_step')
 async def step(request: Request):
-    next_step()
-    message = f"Команда выполнена"
+    try:
+        result = next_step()
+    except CommandException as exc:
+        print(exc.msg)
+        raise HTTPException(status_code=404, detail=exc.msg)
+    finished = result.get('finished')
+    message = result.get('message')
+    if finished:
+        print("!!!Программа завершена")
+    return {"status": 200, "message": message, "program_finished":finished}
+
+
+@router.get('/reset')
+async def reset_data(request: Request):
+    try:
+        reset()
+    except CommandException as exc:
+        print(exc.msg)
+        raise HTTPException(status_code=404, detail=exc.msg)
+    message = f"Команда выполнена успешно"
     return {"status": 200, "message": message}
-    pass
-    # text = data.text
-    # initialization(code=text)
-    # message = f"Код получен {data.text}"
-    # return {"status": 200, "message": message}
+
+@router.get('/run_all')
+async def run_all_program(request: Request):
+    try:
+        run_all()
+    except CommandException as exc:
+        print(exc.msg)
+        raise HTTPException(status_code=404, detail=exc.msg)
+    message = f"Команда выполнена успешно"
+    return {"status": 200, "message": message}

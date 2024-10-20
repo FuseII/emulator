@@ -15,19 +15,6 @@ app.mount('/static', StaticFiles(directory=r'D:\Artem\Magistrature\1_sem\Softwar
           'static')
 
 
-@app.exception_handler(HTTPException)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    error_messages = []
-    for error in exc.errors():
-        error_messages.append({"loc": error["loc"], "msg": error["msg"]})
-    return JSONResponse(
-        status_code=400,
-        content={"detail": error_messages},
-    )
-
-
-app.add_exception_handler(HTTPException, validation_exception_handler)
-
 
 @app.get("/")
 def home_page():

@@ -3,9 +3,24 @@
 // clickButton.addEventListener('click', calculate);
 const enterDataButton = document.getElementById("enter-data-button")
 enterDataButton.addEventListener('click', enterData);
+const savedBackgroundBtn = enterDataButton.style.background;
+const disabledBackgroundBtn = 'grey';
 
-const calculateButton = document.getElementById("calculate-button")
-calculateButton.addEventListener('click', next_step);
+
+const nextStepButton = document.getElementById("next-step-button")
+nextStepButton.addEventListener('click', next_step);
+nextStepButton.disabled = true
+nextStepButton.style.background = disabledBackgroundBtn;
+
+const resetButton = document.getElementById("reset-button")
+resetButton.addEventListener('click', reset);
+resetButton.disabled = true
+resetButton.style.background = disabledBackgroundBtn;
+
+const runAllButton = document.getElementById("run-all-button")
+runAllButton.addEventListener('click', run_all);
+runAllButton.disabled = true
+runAllButton.style.background = disabledBackgroundBtn;
 
 
 async function updateSliderValue(value) {
@@ -25,6 +40,7 @@ async function updateSliderValue(value) {
     }
     let talble = "<table><thead><tr>" + ths + "</thead><tbody><tr>" + trs + "</tbody></table>";
     array_1.innerHTML = talble;
+
 
 // event.preventDefault();  // Предотвращаем стандартное действие формы
 
@@ -83,9 +99,9 @@ async function enterData(event) {
     let code_text = document.getElementById("code_text");
     console.log(code_text.value);
     let text = code_text.value
-    let send_data = {"array":data,"text":text};
+    let send_data = {"array": data, "text": text};
     //GET запрос?
-     try {
+    try {
         const response = await fetch('/pages/enter_data', {
             method: 'POST',
             headers: {
@@ -107,6 +123,12 @@ async function enterData(event) {
         if (result.message) {
             console.log(result.message);
             data_output.value = result.message;
+            resetButton.style.background = savedBackgroundBtn;
+            resetButton.disabled = false;
+            nextStepButton.style.background = savedBackgroundBtn;
+            nextStepButton.disabled = false;
+            runAllButton.style.background = savedBackgroundBtn;
+            runAllButton.disabled = false;
         } else {
             alert('Неизвестная ошибка');
         }
@@ -123,10 +145,10 @@ async function next_step(event) {
     let code_text = document.getElementById("code_text");
     console.log("next step");
     let text = code_text.value
-    let send_data = {"text":text}
+    let send_data = {"text": text}
     let program_output_info = document.getElementById("program_output_info");
 
-     try {
+    try {
         const response = await fetch('/pages/next_step');
 
         // Проверяем успешность ответа
@@ -134,6 +156,41 @@ async function next_step(event) {
             // Получаем данные об ошибке
             const errorData = await response.json();
             console.log(errorData);  // Отображаем ошибки alert
+            alert('Error ' + errorData.detail);
+            return;  // Прерываем выполнение функции
+        }
+        const result = await response.json();
+
+        if (result.message) {
+            console.log(result);
+            program_output_info.value = result.message;
+            runAllButton.style.background = disabledBackgroundBtn;
+            runAllButton.disabled = true;
+            if (result['program_finished']) {
+                nextStepButton.style.background = disabledBackgroundBtn;
+                nextStepButton.disabled = true;
+            }
+        } else {
+            alert('Неизвестная ошибка');
+        }
+    } catch (error) {
+        // console.error('Error:', error)
+        alert('Ошибка:  ' + error);
+    }
+
+}
+
+async function reset(event) {
+
+    try {
+        const response = await fetch('/pages/reset');
+
+        // Проверяем успешность ответа
+        if (!response.ok) {
+            // Получаем данные об ошибке
+            const errorData = await response.json();
+            console.log(errorData);  // Отображаем ошибки alert
+            alert('Error ' + errorData.detail);
             return;  // Прерываем выполнение функции
         }
         const result = await response.json();
@@ -141,12 +198,49 @@ async function next_step(event) {
         if (result.message) {
             console.log(result.message);
             program_output_info.value = result.message;
+            resetButton.style.background = savedBackgroundBtn;
+            resetButton.disabled = false;
+            nextStepButton.style.background = savedBackgroundBtn;
+            nextStepButton.disabled = false;
+            runAllButton.style.background = savedBackgroundBtn;
+            runAllButton.disabled = false;
         } else {
             alert('Неизвестная ошибка');
         }
     } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Произошла ошибка ');
+        // console.error('Error:', error)
+        alert('Ошибка:  ' + error);
+    }
+
+}
+
+async function run_all(event) {
+
+    try {
+        const response = await fetch('/pages/run_all');
+
+        // Проверяем успешность ответа
+        if (!response.ok) {
+            // Получаем данные об ошибке
+            const errorData = await response.json();
+            console.log(errorData);  // Отображаем ошибки alert
+            alert('Error ' + errorData.detail);
+            return;  // Прерываем выполнение функции
+        }
+        const result = await response.json();
+
+        if (result.message) {
+            console.log(result.message);
+            program_output_info.value = result.message;
+            nextStepButton.style.background = disabledBackgroundBtn;
+            nextStepButton.disabled = true;
+
+        } else {
+            alert('Неизвестная ошибка');
+        }
+    } catch (error) {
+        // console.error('Error:', error)
+        alert('Ошибка:  ' + error);
     }
 
 }
