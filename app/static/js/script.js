@@ -46,12 +46,9 @@ async function updateSliderValue(value) {
     if (array_2 != null) {
         array_2.innerHTML = talble;
     }
-    tableId = 'table-flags';
-    data = {'PC': 1, 'SF': 0, 'ZF': 6, 'CF': 5};
-    displayDataInTable(tableId, data);
 }
 
-function displayDataInTable(tableId, data) {
+function displayJsonInTable(tableId, data) {
 
     let headers = Object.keys(data);
 
@@ -59,8 +56,8 @@ function displayDataInTable(tableId, data) {
     var headerRowHTML = '<tr>';
     var allRecordsHTML = '';
     allRecordsHTML += '<tr>';
-    for (var i=0;i<headers.length;i++) {
-        headerRowHTML += '<th>' + headers[i]+ '</th>';
+    for (var i = 0; i < headers.length; i++) {
+        headerRowHTML += '<th>' + headers[i] + '</th>';
         console.log(headers);
         allRecordsHTML += '<td>' + data[headers[i]] + '</td>';
 
@@ -74,6 +71,50 @@ function displayDataInTable(tableId, data) {
     let table = document.getElementById(tableId);
     table.innerHTML = headerRowHTML + allRecordsHTML;
 
+}
+
+function displayArrayInTable(tableId, arr) {
+    //Prepare html header
+    var headerRowHTML = '<tr>';
+    var allRecordsHTML = '';
+    console.log(arr.length);
+    allRecordsHTML += '<tr>';
+    for (var i = 0; i < arr.length; i++) {
+        headerRowHTML += '<th>' + i.toString() + '</th>';
+        allRecordsHTML += '<td>' + arr[i].toString() + '</td>';
+
+
+    }
+    headerRowHTML += '</tr>';
+    headerRowHTML = '<thead>' + headerRowHTML + '</thead>'
+    allRecordsHTML += '</tr>';
+    allRecordsHTML = '<tbody>' + allRecordsHTML + '</tbody>'
+
+    //Append the table header and all records
+    let table = document.getElementById(tableId);
+    table.innerHTML = headerRowHTML + allRecordsHTML;
+    console.log(table);
+}
+
+function displayCommandsInTable(tableId, arr) {
+    //Prepare html header
+    var headerRowHTML = '<tr>';
+    var allRecordsHTML = '';
+    console.log(arr.length);
+    allRecordsHTML += '<tr>';
+    for (var i = 0; i < arr.length; i++) {
+        headerRowHTML += '<th>' + i.toString() + '</th>';
+        allRecordsHTML += '<td>' + arr[i]["opcode"] + ' ' + arr[i]["operands"] + '</td>';
+    }
+    headerRowHTML += '</tr>';
+    headerRowHTML = '<thead>' + headerRowHTML + '</thead>'
+    allRecordsHTML += '</tr>';
+    allRecordsHTML = '<tbody>' + allRecordsHTML + '</tbody>'
+
+    //Append the table header and all records
+    let table = document.getElementById(tableId);
+    table.innerHTML = headerRowHTML + allRecordsHTML;
+    console.log(table);
 }
 
 // window.addEventListener("load", updateSliderValue);
@@ -90,7 +131,9 @@ async function enterData(event) {
             data.push(parseInt(input.value, 10)); // Получаем значение из input и преобразуем в число
         }
     }
-    console.log(data); // Вывод двумерного массива с данными из таблицы
+    // Вывод двумерного массива с данными из таблицы
+    //  console.log(data);
+
 
 
     let code_text = document.getElementById("code_text");
@@ -116,6 +159,11 @@ async function enterData(event) {
         }
 
         const result = await response.json();
+        displayJsonInTable("table-pc", {"PC": result.PC})
+        displayJsonInTable("table-flags", result.FLAGS)
+        displayJsonInTable("table-registers", result.REGISTERS)
+        displayArrayInTable("table-data", result.DATA)
+        displayCommandsInTable("table-commands", result.PROGRAM_COMMANDS)
 
         if (result.message) {
             console.log(result.message);
@@ -157,13 +205,17 @@ async function next_step(event) {
             return;  // Прерываем выполнение функции
         }
         const result = await response.json();
+        console.log(result.message)
+        displayJsonInTable("table-pc", {"PC": result.PC})
+        displayJsonInTable("table-flags", result.FLAGS)
+        displayJsonInTable("table-registers", result.REGISTERS)
 
         if (result.message) {
             console.log(result);
             program_output_info.value = result.message;
             runAllButton.style.background = disabledBackgroundBtn;
             runAllButton.disabled = true;
-            if (result['program_finished']) {
+            if (result['finished']) {
                 nextStepButton.style.background = disabledBackgroundBtn;
                 nextStepButton.disabled = true;
             }
@@ -191,6 +243,10 @@ async function reset(event) {
             return;  // Прерываем выполнение функции
         }
         const result = await response.json();
+        console.log(result.message)
+        displayJsonInTable("table-pc", {"PC": result.PC})
+        displayJsonInTable("table-flags", result.FLAGS)
+        displayJsonInTable("table-registers", result.REGISTERS)
 
         if (result.message) {
             console.log(result.message);
@@ -225,12 +281,18 @@ async function run_all(event) {
             return;  // Прерываем выполнение функции
         }
         const result = await response.json();
+        console.log(result.message)
+        displayJsonInTable("table-pc", {"PC": result.PC})
+        displayJsonInTable("table-flags", result.FLAGS)
+        displayJsonInTable("table-registers", result.REGISTERS)
 
         if (result.message) {
             console.log(result.message);
             program_output_info.value = result.message;
             nextStepButton.style.background = disabledBackgroundBtn;
             nextStepButton.disabled = true;
+            runAllButton.style.background = disabledBackgroundBtn;
+            runAllButton.disabled = true;
 
         } else {
             alert('Неизвестная ошибка');

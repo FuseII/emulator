@@ -1,10 +1,11 @@
+from turtledemo.forest import doit1
 from typing import List
 
 from app.exceptions import CommandException
 
 PC = 0  # Program counter - счётчик команд
 REGISTERS = {}  # Регистры и их значения
-DATA = {}  # Память для данных
+DATA = []  # Память для данных
 PROGRAM_MEMORY = {}  # Память для программы
 PROGRAM_COMMANDS = []  # Последовательность комманд List[{opcode:'mov',operands:[ax,bx]}]
 FLAGS = {}  # Флаги для функции cmp(сравнения) и переходов
@@ -130,7 +131,8 @@ def make_mov(command: dict) -> None:
     elif op2[0] == '[' and op2[
         -1] == ']':  # если правый операнд является указателем - получить значение из памяти данных
         op2 = op2[1:-1]
-        print(REGISTERS)
+        print("REGISTERS = ",REGISTERS)
+        print("DATA = ",DATA)
         REGISTERS[op1] = DATA[REGISTERS[op2]]
 
     elif op2.isdigit():  # # если правый операнд является числом
@@ -175,32 +177,45 @@ def next_step() -> dict:
     """Пошаговое выполнение программы. Конечный автомат"""
     global PC
     global PROGRAM_FINISHED
+    message = ''
     if not PROGRAM_FINISHED:
         command = PROGRAM_COMMANDS[PC]
         print(command)
         PROGRAM_FINISHED = make_command(command)
+        operands = ''
+        for operand in command["operands"]:
+            operands += ' ' + operand
+        message = "Команда {} с операндами: {} выполнена успешно".format(command["opcode"], operands)
     print("REGISTERS = {}".format(REGISTERS))
     print("FLAGS = {}".format(FLAGS))
     print("PC = {}".format(PC))
     print("PROGRAM_FINISHED = {}".format(PROGRAM_FINISHED))
-    operands=''
-    for operand in command["operands"]:
-        operands+=' ' + operand
-    message = "Команда {} с операндами: {} выполнена успешно".format(command["opcode"], operands)
-    return {"finished": PROGRAM_FINISHED, "message": message}
+    return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,"PROGRAM_COMMANDS":PROGRAM_COMMANDS, "PC": PC}
 
 
-def run_all() -> None:
-    reset()
-    global PROGRAM_FINISHED, PC, PROGRAM_COMMANDS
-    print("PC = {}".format(PC))
-    print("PROGRAM_COMMANDS = {}".format(PROGRAM_COMMANDS))
-    while not PROGRAM_FINISHED:
-        command = PROGRAM_COMMANDS[PC]
-        print(command)
-        PROGRAM_FINISHED = make_command(command)
-    print("REGISTERS = {}".format(REGISTERS))
-    print("FLAGS = {}".format(FLAGS))
+def run_all() -> dict:
+    result = next_step()
+    while not result.get('finished'):
+        result = next_step()
+    return result
+
+
+
+    # reset()
+    # global PROGRAM_FINISHED, PC, PROGRAM_COMMANDS
+    # print("PC = {}".format(PC))
+    # print("PROGRAM_COMMANDS = {}".format(PROGRAM_COMMANDS))
+    # while not PROGRAM_FINISHED:
+    #     command = PROGRAM_COMMANDS[PC]
+    #     print(command)
+    #     PROGRAM_FINISHED = make_command(command)
+    # print("REGISTERS = {}".format(REGISTERS))
+    # print("FLAGS = {}".format(FLAGS))
+    # operands = ''
+    # for operand in command["operands"]:
+    #     operands += ' ' + operand
+    # message = "Команда {} с операндами: {} выполнена успешно".format(command["opcode"], operands)
+    # return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS, "PC": PC}
 
 
 def make_program(commands_lines: List[str]) -> None:
@@ -249,31 +264,44 @@ def split_commands(code: str) -> List[str]:
     return commands
 
 
-def reset() -> None:
+def reset() -> dict:
     global PC
     PC = 0
-    global PROGRAM_FINISHED, REGISTERS
+    global PROGRAM_FINISHED, REGISTERS, ARRAY_SIZE
     PROGRAM_FINISHED = False
     FLAGS.clear()
+    FLAGS['ZF'] = '-'
+    FLAGS['CF'] = '-'
+    FLAGS['SF'] = '-'
     REGISTERS.clear()
+    REGISTERS['ax'] = 0  # текущий максимум (результат)
     REGISTERS['bx'] = 0  # указатель на массив
     REGISTERS['cx'] = ARRAY_SIZE  # размер массива
-    REGISTERS['ax'] = 0  # текущий максимум (результат)
+    REGISTERS['dx'] = '-'  # размер массива
+    message = "Программа готова к выполнению с начала"
+    return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,"PROGRAM_COMMANDS":PROGRAM_COMMANDS, "PC": PC}
 
 
-def initialization(array: List[int], code: str) -> None:
+
+
+def initialization(array: List[int], code: str) -> dict:
     """Инициализация данных/регистров/флагов"""
-    global PROGRAM_COMMANDS, ARRAY_SIZE
-    ARRAY_SIZE = len(array)
+    # global PROGRAM_COMMANDS, ARRAY_SIZE, DATA
+    global ARRAY_SIZE
     reset()
+    ARRAY_SIZE = len(array)
     # REGISTERS['array'] = array
     # REGISTERS['length'] = len(array)
     # REGISTERS['array_ptr'] = 0
     # REGISTERS['bx'] = 0  # указатель на массив
-    # REGISTERS['cx'] = ARRAY_SIZE  # размер массива
+    REGISTERS['cx'] = ARRAY_SIZE  # размер массива
     # REGISTERS['ax'] = 0  # текущий максимум (результат)
+    DATA.clear()
     for i, x in enumerate(array):
-        DATA[i] = x
+        # DATA[i] = x
+        DATA.append(x)
     commands_lines = split_commands(code)
     make_program(commands_lines)
     print(PROGRAM_COMMANDS)
+    message = "Код программы занесён в память команд, данные занесены в память данных"
+    return {"message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,"PROGRAM_COMMANDS":PROGRAM_COMMANDS, "PC": PC, "DATA": DATA}

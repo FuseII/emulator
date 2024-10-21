@@ -51,9 +51,8 @@ th, td {
 
 .output-container {
     margin-top: 20px;
-    width: fit-content;
-
-    height: 50%;
+    width: auto;
+    height: auto;
     resize: both;
 }
 
