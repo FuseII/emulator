@@ -25,15 +25,18 @@ nav a {
 }
 
 .slider-container {
+    overflow: scroll;
+    width: 100%;
     margin-top: 20px;
 }
 
 .table-container {
+    width: 100%;
     margin-top: 20px;
 }
 
 table {
-    width: 100%;
+    width: 50%;
     border-collapse: collapse;
 }
 
@@ -117,7 +120,7 @@ ul {
 
 
 .table-container {
-  overflow: scroll;
+  /*overflow: scroll;*/
   /*height: 180px;*/
   /*width: 300px;*/
 }
@@ -128,7 +131,7 @@ table {
 
 table th,
 table td {
-  max-width: 300px;
+  /*max-width: 300px;*/
   padding: 8px 16px;
   border: 1px solid #ddd;
   overflow: hidden;

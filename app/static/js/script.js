@@ -30,53 +30,50 @@ async function updateSliderValue(value) {
     let output = document.getElementById('sliderValue');
     output.innerHTML = slider.value;
     let array_1 = document.getElementById('array_1');
+    let array_2 = document.getElementById('array_2');
     let ths = ""
     let trs = ""
     for (let i = 0; i < slider.value; i++) {
         ths += "<th>" + "Элемент " + i + "</th>";
-        let element_id = 'element_' + i.toString();
-        trs += "<td><input type='number' min='0' step='1'  value='0' id=" + element_id + "></td>";
+        // let element_id = 'element_' + i.toString();
+        trs += "<td><input type='number' min='0' step='1'  value='0'></td>";
+        // trs += "<td><input type='number' min='0' step='1'  value='0' id=" + element_id + "></td>";
         // trs += "<td>" + i + "</td>";
     }
     let talble = "<table><thead><tr>" + ths + "</thead><tbody><tr>" + trs + "</tbody></table>";
     array_1.innerHTML = talble;
+    // array_2.innerHTML = talble;
+    if (array_2 != null) {
+        array_2.innerHTML = talble;
+    }
+    tableId = 'table-flags';
+    data = {'PC': 1, 'SF': 0, 'ZF': 6, 'CF': 5};
+    displayDataInTable(tableId, data);
+}
 
+function displayDataInTable(tableId, data) {
 
-// event.preventDefault();  // Предотвращаем стандартное действие формы
+    let headers = Object.keys(data);
 
-    // Получаем форму и собираем данные из неё
-    // const form = document.getElementById('registration-form');
-    // const formData = new FormData(form);
-    // const data = Object.fromEntries(formData.entries());
-    //
-    // try {
-    //     const response = await fetch('/auth/register', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(data)
-    //     });
-    //
-    //     // Проверяем успешность ответа
-    //     if (!response.ok) {
-    //         // Получаем данные об ошибке
-    //         const errorData = await response.json();
-    //         displayErrors(errorData);  // Отображаем ошибки
-    //         return;  // Прерываем выполнение функции
-    //     }
-    //
-    //     const result = await response.json();
-    //
-    //     if (result.message) {  // Проверяем наличие сообщения о успешной регистрации
-    //         window.location.href = '/pages/login';  // Перенаправляем пользователя на страницу логина
-    //     } else {
-    //         alert(result.message || 'Неизвестная ошибка');
-    //     }
-    // } catch (error) {
-    //     console.error('Ошибка:', error);
-    //     alert('Произошла ошибка при регистрации. Пожалуйста, попробуйте снова.');
-    // }
+    //Prepare html header
+    var headerRowHTML = '<tr>';
+    var allRecordsHTML = '';
+    allRecordsHTML += '<tr>';
+    for (var i=0;i<headers.length;i++) {
+        headerRowHTML += '<th>' + headers[i]+ '</th>';
+        console.log(headers);
+        allRecordsHTML += '<td>' + data[headers[i]] + '</td>';
+
+    }
+    headerRowHTML += '</tr>';
+    headerRowHTML = '<thead>' + headerRowHTML + '</thead>'
+    allRecordsHTML += '</tr>';
+    allRecordsHTML = '<tbody>' + allRecordsHTML + '</tbody>'
+
+    //Append the table header and all records
+    let table = document.getElementById(tableId);
+    table.innerHTML = headerRowHTML + allRecordsHTML;
+
 }
 
 // window.addEventListener("load", updateSliderValue);
@@ -85,8 +82,8 @@ async function enterData(event) {
     console.log("btn");
     const data = []
 
-    var table = document.getElementById("array_1");
-    var data_output = document.getElementById("enter-data-output");
+    let table = document.getElementById("array_1");
+    let data_output = document.getElementById("enter-data-output");
     for (var i = 1, row; row = table.rows[i]; i++) {
         for (var j = 0, col; col = row.cells[j]; j++) {
             const input = col.querySelector('input');

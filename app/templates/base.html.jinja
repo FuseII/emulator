@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}
+        <title>Задание №1</title>
+    {% endblock %}
+    <link rel="stylesheet" href="../static/style/style.css">
+</head>
+<body onload="updateSliderValue()">
+<header>
+    <nav>
+        <ul class="menu">
+            <li><a href="/">Задание №1</a></li>
+            <li><a href="/pages/task_2">Задание №2</a></li>
+            <li><a href="/pages/about">О программе</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+
+    {% block description %}
+        <h1>Поиск максимума в массиве</h1>
+
+        <label for="slider">Введите кол-во элементов в массиве:</label>
+    {% endblock %}
+    <div class="container">
+        <input type="range" id="slider" min="6" max="15" value="6" oninput="updateSliderValue(this.value)">
+        <span id="sliderValue">6</span>
+    </div>
+    {% block tables %}
+        <div class="slider-container">
+        <div class="table-container">
+
+            <table id="array_1">
+                <thead>
+                <tr>
+                    <th>Элемент 1</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><input type="number" min="0" step="1" id="element1" value="0"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    {% endblock %}
+</div>
+    <div>
+        <h2>Введите ваш код:</h2>
+        <textarea class="code-input" id="code_text" placeholder="Введите ваш код здесь...">
+                 {% block code %}
+                     next_element:
+                     inc bx            ; переходим к следующему элементу
+                     cmp bx, cx        ; проверяем, достигли ли конца массива
+                     jge finish        ; если достигли конца, выходим из цикла
+
+                     mov dx, [bx]      ; загружаем текущий элемент
+                     cmp ax, dx        ; сравниваем с текущим максимумом
+                     jge next_element  ; если текущий элемент меньше, переходим к следующему
+
+                     mov ax, dx        ; обновляем максимум
+
+                     jmp next_element  ; продолжаем цикл
+
+                     finish:
+                     ret
+                 {% endblock %}
+</textarea>
+        <div>
+            <label for="enter-data-button">Занести массив в память данных и код в память команд</label>
+            <button id="enter-data-button" class="button">Занести в память</button>
+            <output type="text" id="enter-data-output"></output>
+        </div>
+    </div>
+    <button id="reset-button" class="button">Начать программу сначала</button>
+    <button id="next-step-button" class="button">Выполнить следующую команду</button>
+    <button id="run-all-button" class="button">Выполнить программу целиком</button>
+    <div>
+        <h2>Счётчик команд и флаги:</h2>
+        <div class="table-container">
+            <table id="table-flags">
+                <thead>
+                <tr>
+                    <th>PC</th>
+                    <th>ZF</th>
+                    <th>SF</th>
+                    <th>CF</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <h2>Регистры:</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>PC</th>
+                    <th>AX</th>
+                    <th>BX</th>
+                    <th>CX</th>
+                    <th>DX</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="output-container">
+                <label for="program_output_info">Вывод:</label>
+                <input type="text" id="program_output_info" readonly/>
+            </div>
+        </div>
+    </div>
+</main>
+<footer>
+    <p>&copy; A.Ryanov A.Kutepov @All rights reserved.</p>
+</footer>
+<script src="../static/js/script.js"></script>
+</body>
+</html>

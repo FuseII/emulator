@@ -1,0 +1,47 @@
+{% extends "base.html.jinja" %}
+{% block title %}<title>Задание №2</title>{% endblock %}
+{% block code %}
+    loop_start:
+        mov ax, [bx]      ; Загрузка текущего элемента array1
+        mul [cx]          ; Умножение текущих элементов
+        add ax, ax        ; Сложение с результатом свертки
+        add bx, 2         ; Переход к следующему элементу array1
+        add cx, 2         ; Переход к следующему элементу array2
+        dec dx            ; Декремент счетчика
+        jnz loop_start    ; Продолжение цикла, если не все элементы обработаны
+{% endblock %}
+{% block tables %}
+           <div class="table-container">
+            <table id="array_1">
+                <thead>
+                <tr>
+                    <th>Элемент 1</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><input type="number" min="0" step="1" id="element1" value="0"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+               <div class="table-container">
+            <table id="array_2">
+                <thead>
+                <tr>
+                    <th>Элемент 1</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><input type="number" min="0" step="1" id="element1" value="0"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+{% endblock %}
+{% block description %}
+     <h1>Свёртка двух массивов</h1>
+            <div class="slider-container">
+            <label for="slider">Введите кол-во элементов в массивах:</label>
+{% endblock %}

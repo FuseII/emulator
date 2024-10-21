@@ -14,13 +14,15 @@ templates = Jinja2Templates(directory=r'D:\Artem\Magistrature\1_sem\Software_arc
 
 @router.get('/task_1')
 async def task_1(request: Request):
-    return templates.TemplateResponse(name='index.html',
+    return templates.TemplateResponse(name='base.html.jinja',
                                       context={'request': request})
 
 
 @router.get('/task_2')
 async def task_2(request: Request):
-    return {"message": "Hello World"}
+    return templates.TemplateResponse(name='child.html.jinja',
+                                      context={'request': request})
+    # return {"message": "Hello World"}
 
 
 @router.get('/about')
