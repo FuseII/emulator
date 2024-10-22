@@ -33,14 +33,15 @@ async def about(request: Request):
 
 
 class Data(BaseModel):
-    array: List[int]
-    text: str
+    array: List[int] #данные
+    text: str #код
+    mode:int #Задача №1 или Задача №2
 
 
 @router.post('/enter_data')
 async def enter_data(data: Data):
     # message = f"Массив размера {len(data.array)} с элементами {data.array} успешно загружен в память"
-    result = initialization(array=data.array, code=data.text)
+    result = initialization(array=data.array, code=data.text, mode=data.mode)
     # print("DATA_MEMORY = {}".format(DATA))
     result["status"] = 200
     return result

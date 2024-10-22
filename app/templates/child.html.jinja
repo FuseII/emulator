@@ -2,46 +2,79 @@
 {% block title %}<title>Задание №2</title>{% endblock %}
 {% block code %}
     loop_start:
-        mov ax, [bx]      ; Загрузка текущего элемента array1
-        mul [cx]          ; Умножение текущих элементов
-        add ax, ax        ; Сложение с результатом свертки
-        add bx, 2         ; Переход к следующему элементу array1
-        add cx, 2         ; Переход к следующему элементу array2
-        dec dx            ; Декремент счетчика
-        jnz loop_start    ; Продолжение цикла, если не все элементы обработаны
+    mov ex, [bx]      ; Загрузка текущего элемента array1
+    mul ex, [cx]              ; Умножение текущих элементов
+    add ax, ex          ; Сложение с результатом свертки
+    inc bx             ; Переход к следующему элементу array1
+    inc cx             ; Переход к следующему элементу array2
+    cmp cx, dx              ; проверяем, достигли ли конца массива
+    jge finish
+    jmp loop_start
+
+    finish:
+    ret
 {% endblock %}
 {% block tables %}
-           <div class="table-container">
-            <table id="array_1">
-                <thead>
-                <tr>
-                    <th>Элемент 1</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td><input type="number" min="0" step="1" id="element1" value="0"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-               <div class="table-container">
-            <table id="array_2">
-                <thead>
-                <tr>
-                    <th>Элемент 1</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td><input type="number" min="0" step="1" id="element1" value="0"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="table-container">
+        <table id="array_1">
+            <thead>
+            <tr>
+                <th>Элемент 1</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><input type="number" min="0" step="1" id="element1" value="0"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="table-container">
+        <table id="array_2">
+            <thead>
+            <tr>
+                <th>Элемент 1</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><input type="number" min="0" step="1" id="element1" value="0"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
 {% block description %}
-     <h1>Свёртка двух массивов</h1>
-            <div class="slider-container">
-            <label for="slider">Введите кол-во элементов в массивах:</label>
+    <h1>Свёртка двух массивов</h1>
+    <label for="slider">Введите кол-во элементов в массивах:</label>
 {% endblock %}
+
+{% block registers %}
+    <h2>Регистры:</h2>
+
+    <div class="table-container">
+        <table id="table-registers">
+            <thead>
+            <tr>
+                <th>ax</th>
+                <th>bx</th>
+                <th>cx</th>
+                <th>dx</th>
+                <th>ex</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+{% endblock %}
+
+

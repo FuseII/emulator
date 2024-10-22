@@ -1,4 +1,4 @@
-from turtledemo.forest import doit1
+
 from typing import List
 
 from app.exceptions import CommandException
@@ -10,7 +10,8 @@ PROGRAM_MEMORY = {}  # Память для программы
 PROGRAM_COMMANDS = []  # Последовательность комманд List[{opcode:'mov',operands:[ax,bx]}]
 FLAGS = {}  # Флаги для функции cmp(сравнения) и переходов
 PROGRAM_FINISHED = False
-ARRAY_SIZE = 0
+ARRAY_SIZE = 0  # Размер массива
+MODE = 1  # Режим работы
 
 
 def is_register(operand: str) -> bool:
@@ -41,6 +42,21 @@ def make_add(command: str) -> None:
     if not op2.isdigit():
         op2 = REGISTERS[op2]
     REGISTERS[op1] = REGISTERS[op1] + op2
+
+
+def make_mul(command: str) -> None:
+    """Команда mul в ассемблере выполняет умножение двух операндов и сохраняет результат в первом операнде (приёмнике)."""
+    op1 = command['operands'][0]
+    op2 = command['operands'][1]
+    if  op2.isdigit():
+        op2 = REGISTERS[op2]
+        REGISTERS[op1] = REGISTERS[op1] * op2
+    elif op2[0] == '[' and op2[
+        -1] == ']':  # если правый операнд является указателем - получить значение из памяти данных
+        op2 = op2[1:-1]
+        # print("REGISTERS = ", REGISTERS)
+        # print("DATA = ", DATA)
+        REGISTERS[op1] *= DATA[REGISTERS[op2]]
 
 
 def jump_to_label(label: str) -> None:
@@ -131,8 +147,8 @@ def make_mov(command: dict) -> None:
     elif op2[0] == '[' and op2[
         -1] == ']':  # если правый операнд является указателем - получить значение из памяти данных
         op2 = op2[1:-1]
-        print("REGISTERS = ",REGISTERS)
-        print("DATA = ",DATA)
+        print("REGISTERS = ", REGISTERS)
+        print("DATA = ", DATA)
         REGISTERS[op1] = DATA[REGISTERS[op2]]
 
     elif op2.isdigit():  # # если правый операнд является числом
@@ -159,6 +175,8 @@ def make_command(command: dict) -> bool:
         make_jge(command)
     elif command['opcode'] == 'inc':
         make_inc(command)
+    elif command['opcode'] == 'mul':
+        make_mul(command)
     elif command['opcode'] == 'jmp':
         jump_to_label(label=command['operands'][0] + ':')
     elif command['opcode'][-1] == ':':
@@ -167,7 +185,7 @@ def make_command(command: dict) -> bool:
         print("Program finished")
         finished = True
     else:
-        raise CommandException("No such command {}".format(command['opcode']))
+        raise CommandException("Ошибка: Нет такой команды {}".format(command['opcode']))
     global PC
     PC = PC + 1
     return finished
@@ -190,7 +208,8 @@ def next_step() -> dict:
     print("FLAGS = {}".format(FLAGS))
     print("PC = {}".format(PC))
     print("PROGRAM_FINISHED = {}".format(PROGRAM_FINISHED))
-    return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,"PROGRAM_COMMANDS":PROGRAM_COMMANDS, "PC": PC}
+    return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,
+            "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC}
 
 
 def run_all() -> dict:
@@ -198,8 +217,6 @@ def run_all() -> dict:
     while not result.get('finished'):
         result = next_step()
     return result
-
-
 
     # reset()
     # global PROGRAM_FINISHED, PC, PROGRAM_COMMANDS
@@ -278,25 +295,43 @@ def reset() -> dict:
     REGISTERS['bx'] = 0  # указатель на массив
     REGISTERS['cx'] = ARRAY_SIZE  # размер массива
     REGISTERS['dx'] = '-'  # размер массива
+    print("ARRAY_SIZE = {}".format(ARRAY_SIZE))
+    print("MODE = {}".format(MODE))
+    if MODE == 1:
+        REGISTERS['cx'] = ARRAY_SIZE  # размер массива
+    else:
+        REGISTERS['bx'] = 0  # казатель на начало массива array1
+        REGISTERS['cx'] = int(ARRAY_SIZE / 2)  # указатель на начало массива array2
+        REGISTERS['dx'] = ARRAY_SIZE  # Загрузка размера массива
+        REGISTERS['ex'] = '-'  # промежуточный результат
     message = "Программа готова к выполнению с начала"
-    return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,"PROGRAM_COMMANDS":PROGRAM_COMMANDS, "PC": PC}
+    return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,
+            "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC}
 
 
-
-
-def initialization(array: List[int], code: str) -> dict:
+def initialization(array: List[int], code: str, mode: int) -> dict:
     """Инициализация данных/регистров/флагов"""
     # global PROGRAM_COMMANDS, ARRAY_SIZE, DATA
-    global ARRAY_SIZE
+    global ARRAY_SIZE, MODE
+    MODE = mode
     reset()
-    ARRAY_SIZE = len(array)
+    if mode == 1:
+        ARRAY_SIZE = len(array)
+        REGISTERS['cx'] = ARRAY_SIZE  # размер массива
+    else:
+        ARRAY_SIZE = len(array)
+        REGISTERS['bx'] = 0  # казатель на начало массива array1
+        REGISTERS['cx'] = int(len(array) / 2)  # указатель на начало массива array2
+        REGISTERS['dx'] = ARRAY_SIZE  # Загрузка размера массива
+
     # REGISTERS['array'] = array
     # REGISTERS['length'] = len(array)
     # REGISTERS['array_ptr'] = 0
     # REGISTERS['bx'] = 0  # указатель на массив
-    REGISTERS['cx'] = ARRAY_SIZE  # размер массива
+
     # REGISTERS['ax'] = 0  # текущий максимум (результат)
     DATA.clear()
+    PROGRAM_COMMANDS.clear()
     for i, x in enumerate(array):
         # DATA[i] = x
         DATA.append(x)
@@ -304,4 +339,5 @@ def initialization(array: List[int], code: str) -> dict:
     make_program(commands_lines)
     print(PROGRAM_COMMANDS)
     message = "Код программы занесён в память команд, данные занесены в память данных"
-    return {"message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,"PROGRAM_COMMANDS":PROGRAM_COMMANDS, "PC": PC, "DATA": DATA}
+    return {"message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS, "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC,
+            "DATA": DATA}

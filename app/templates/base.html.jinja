@@ -99,76 +99,80 @@
             </table>
         </div>
         <div>
-        <h2>Команды:</h2>
-        <div class="table-container">
-            <table id="table-commands">
-                <thead>
-                <tr>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <h2>Счётчик команд:</h2>
-        <div class="table-container">
-            <table id="table-pc">
-                <thead>
-                <tr>
-                    <th>PC</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <h2>Флаги:</h2>
-        <div class="table-container">
-            <table id="table-flags">
-                <thead>
-                <tr>
-                    <th>ZF</th>
-                    <th>CF</th>
-                    <th>SF</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <h2>Регистры:</h2>
-        <div class="table-container">
-            <table id="table-registers">
-                <thead>
-                <tr>
-                    <th>ax</th>
-                    <th>bx</th>
-                    <th>cx</th>
-                    <th>dx</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
+            <h2>Команды:</h2>
+            <div class="table-container">
+                <table id="table-commands">
+                    <thead>
+                    <tr>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h2>Счётчик команд:</h2>
+            <div class="table-container">
+                <table id="table-pc">
+                    <thead>
+                    <tr>
+                        <th>PC</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h2>Флаги:</h2>
+            <div class="table-container">
+                <table id="table-flags">
+                    <thead>
+                    <tr>
+                        <th>ZF</th>
+                        <th>CF</th>
+                        <th>SF</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% block registers %}
+            <h2>Регистры:</h2>
 
+            <div class="table-container">
+                <table id="table-registers">
+                    <thead>
+                    <tr>
+                        <th>ax</th>
+                        <th>bx</th>
+                        <th>cx</th>
+                        <th>dx</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            {% endblock %}
         </div>
     </div>
 </main>

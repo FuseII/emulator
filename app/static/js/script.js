@@ -24,7 +24,7 @@ runAllButton.style.background = disabledBackgroundBtn;
 
 
 async function updateSliderValue(value) {
-    console.log(value)
+    // console.log(value)
     // console.log(clickButton.id)
     let slider = document.getElementById('slider');
     let output = document.getElementById('sliderValue');
@@ -58,7 +58,7 @@ function displayJsonInTable(tableId, data) {
     allRecordsHTML += '<tr>';
     for (var i = 0; i < headers.length; i++) {
         headerRowHTML += '<th>' + headers[i] + '</th>';
-        console.log(headers);
+        // console.log(headers);
         allRecordsHTML += '<td>' + data[headers[i]] + '</td>';
 
     }
@@ -77,7 +77,7 @@ function displayArrayInTable(tableId, arr) {
     //Prepare html header
     var headerRowHTML = '<tr>';
     var allRecordsHTML = '';
-    console.log(arr.length);
+    // console.log(arr.length);
     allRecordsHTML += '<tr>';
     for (var i = 0; i < arr.length; i++) {
         headerRowHTML += '<th>' + i.toString() + '</th>';
@@ -93,14 +93,14 @@ function displayArrayInTable(tableId, arr) {
     //Append the table header and all records
     let table = document.getElementById(tableId);
     table.innerHTML = headerRowHTML + allRecordsHTML;
-    console.log(table);
+    // console.log(table);
 }
 
 function displayCommandsInTable(tableId, arr) {
     //Prepare html header
     var headerRowHTML = '<tr>';
     var allRecordsHTML = '';
-    console.log(arr.length);
+    // console.log(arr.length);
     allRecordsHTML += '<tr>';
     for (var i = 0; i < arr.length; i++) {
         headerRowHTML += '<th>' + i.toString() + '</th>';
@@ -114,32 +114,46 @@ function displayCommandsInTable(tableId, arr) {
     //Append the table header and all records
     let table = document.getElementById(tableId);
     table.innerHTML = headerRowHTML + allRecordsHTML;
-    console.log(table);
+    // console.log(table);
 }
 
 // window.addEventListener("load", updateSliderValue);
 
 async function enterData(event) {
-    console.log("btn");
+    // console.log("btn");
     const data = []
 
-    let table = document.getElementById("array_1");
+    let array_1 = document.getElementById("array_1");
+    let array_2 = document.getElementById('array_2');
+
+
     let data_output = document.getElementById("enter-data-output");
-    for (var i = 1, row; row = table.rows[i]; i++) {
+    for (var i = 1, row; row = array_1.rows[i]; i++) {
         for (var j = 0, col; col = row.cells[j]; j++) {
             const input = col.querySelector('input');
             data.push(parseInt(input.value, 10)); // Получаем значение из input и преобразуем в число
         }
     }
+    let mode = 1; //Задание №1 или Задание №2
+    if (array_2 != null) {
+        console.log("array_2 existss!");
+        mode = 2;
+        for (var i = 1, row; row = array_2.rows[i]; i++) {
+        for (var j = 0, col; col = row.cells[j]; j++) {
+            const input = col.querySelector('input');
+            data.push(parseInt(input.value, 10)); // Получаем значение из input и преобразуем в число
+        }
+    }
+    }
     // Вывод двумерного массива с данными из таблицы
-    //  console.log(data);
-
 
 
     let code_text = document.getElementById("code_text");
-    console.log(code_text.value);
+    // console.log(code_text.value);
     let text = code_text.value
-    let send_data = {"array": data, "text": text};
+
+    let send_data = {"array": data, "text": text, "mode":mode};
+    console.log(send_data);
     //GET запрос?
     try {
         const response = await fetch('/pages/enter_data', {
@@ -166,7 +180,7 @@ async function enterData(event) {
         displayCommandsInTable("table-commands", result.PROGRAM_COMMANDS)
 
         if (result.message) {
-            console.log(result.message);
+            // console.log(result.message);
             data_output.value = result.message;
             resetButton.style.background = savedBackgroundBtn;
             resetButton.disabled = false;
@@ -178,7 +192,7 @@ async function enterData(event) {
             alert('Неизвестная ошибка');
         }
     } catch (error) {
-        console.error('Ошибка:', error);
+        // console.error('Ошибка:', error);
         alert('Произошла ошибка ');
     }
 
@@ -188,7 +202,7 @@ async function enterData(event) {
 async function next_step(event) {
 
     let code_text = document.getElementById("code_text");
-    console.log("next step");
+    // console.log("next step");
     let text = code_text.value
     let send_data = {"text": text}
     let program_output_info = document.getElementById("program_output_info");
@@ -200,18 +214,18 @@ async function next_step(event) {
         if (!response.ok) {
             // Получаем данные об ошибке
             const errorData = await response.json();
-            console.log(errorData);  // Отображаем ошибки alert
+            // console.log(errorData);  // Отображаем ошибки alert
             alert('Error ' + errorData.detail);
             return;  // Прерываем выполнение функции
         }
         const result = await response.json();
-        console.log(result.message)
+        // console.log(result.message)
         displayJsonInTable("table-pc", {"PC": result.PC})
         displayJsonInTable("table-flags", result.FLAGS)
         displayJsonInTable("table-registers", result.REGISTERS)
 
         if (result.message) {
-            console.log(result);
+            // console.log(result);
             program_output_info.value = result.message;
             runAllButton.style.background = disabledBackgroundBtn;
             runAllButton.disabled = true;
@@ -238,18 +252,19 @@ async function reset(event) {
         if (!response.ok) {
             // Получаем данные об ошибке
             const errorData = await response.json();
-            console.log(errorData);  // Отображаем ошибки alert
-            alert('Error ' + errorData.detail);
+            // console.log(errorData);  // Отображаем ошибки alert
+            alert(errorData.detail);
             return;  // Прерываем выполнение функции
         }
         const result = await response.json();
-        console.log(result.message)
-        displayJsonInTable("table-pc", {"PC": result.PC})
+        // console.log(result.message)
+        displayJsonInTable("tab" +
+            "le-pc", {"PC": result.PC})
         displayJsonInTable("table-flags", result.FLAGS)
         displayJsonInTable("table-registers", result.REGISTERS)
 
         if (result.message) {
-            console.log(result.message);
+            // console.log(result.message);
             program_output_info.value = result.message;
             resetButton.style.background = savedBackgroundBtn;
             resetButton.disabled = false;
@@ -276,18 +291,18 @@ async function run_all(event) {
         if (!response.ok) {
             // Получаем данные об ошибке
             const errorData = await response.json();
-            console.log(errorData);  // Отображаем ошибки alert
+            // console.log(errorData);  // Отображаем ошибки alert
             alert('Error ' + errorData.detail);
             return;  // Прерываем выполнение функции
         }
         const result = await response.json();
-        console.log(result.message)
+        // console.log(result.message)
         displayJsonInTable("table-pc", {"PC": result.PC})
         displayJsonInTable("table-flags", result.FLAGS)
         displayJsonInTable("table-registers", result.REGISTERS)
 
         if (result.message) {
-            console.log(result.message);
+            // console.log(result.message);
             program_output_info.value = result.message;
             nextStepButton.style.background = disabledBackgroundBtn;
             nextStepButton.disabled = true;
