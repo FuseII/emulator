@@ -12,6 +12,7 @@ FLAGS = {}  # Флаги для функции cmp(сравнения) и пер
 PROGRAM_FINISHED = False
 ARRAY_SIZE = 0  # Размер массива
 MODE = 1  # Режим работы
+BINARY_CODE = ''
 
 
 def is_register(operand: str) -> bool:
@@ -133,6 +134,7 @@ def make_mov(command: dict) -> None:
     """Команда MOV в ассемблере перемещает значение из источника в приёмник. Она копирует содержимое источника
      и помещает его в приёмник, не изменяя при этом никакие флаги.
      Источником и приёмником могут быть регистры общего назначения, сегментные регистры или области памяти."""
+    binary_code = '0x01' #'f'0b{number:08b}'
     if len(command['operands']) != 2:
         raise CommandException(
             msg="В команде mov несоответствие кол-ву операндов: {}. Должно быть 2".format(len(command['operands'])))
@@ -144,17 +146,22 @@ def make_mov(command: dict) -> None:
 
     if is_register(op1) and is_register(op2):  # если два операнда регистры
         REGISTERS[op1] = REGISTERS[op2]
+        binary_code+='10'+f'{REGISTERS[op2]:08b}'
     elif op2[0] == '[' and op2[
         -1] == ']':  # если правый операнд является указателем - получить значение из памяти данных
         op2 = op2[1:-1]
         print("REGISTERS = ", REGISTERS)
         print("DATA = ", DATA)
         REGISTERS[op1] = DATA[REGISTERS[op2]]
+        binary_code += 'B' + f'{DATA[REGISTERS[op2]]:08b}'
 
     elif op2.isdigit():  # # если правый операнд является числом
         REGISTERS[op1] = op2
+        binary_code += '9' + f'{op2:08b}'
     else:
         raise CommandException(msg="Некорректные операнды в команде {} '{}' '{}'".format(command['opcode'], op1, op2))
+    global BINARY_CODE
+    BINARY_CODE+=binary_code+'\n'
 
 
 def make_command(command: dict) -> bool:
@@ -209,7 +216,7 @@ def next_step() -> dict:
     print("PC = {}".format(PC))
     print("PROGRAM_FINISHED = {}".format(PROGRAM_FINISHED))
     return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,
-            "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC}
+            "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC,"BINARY_CODE":BINARY_CODE}
 
 
 def run_all() -> dict:
@@ -284,7 +291,7 @@ def split_commands(code: str) -> List[str]:
 def reset() -> dict:
     global PC
     PC = 0
-    global PROGRAM_FINISHED, REGISTERS, ARRAY_SIZE
+    global PROGRAM_FINISHED, REGISTERS, ARRAY_SIZE, BINARY_CODE
     PROGRAM_FINISHED = False
     FLAGS.clear()
     FLAGS['ZF'] = '-'
@@ -297,6 +304,7 @@ def reset() -> dict:
     REGISTERS['dx'] = '-'  # размер массива
     print("ARRAY_SIZE = {}".format(ARRAY_SIZE))
     print("MODE = {}".format(MODE))
+    BINARY_CODE = ''
     if MODE == 1:
         REGISTERS['cx'] = ARRAY_SIZE  # размер массива
     else:
@@ -306,7 +314,7 @@ def reset() -> dict:
         REGISTERS['ex'] = '-'  # промежуточный результат
     message = "Программа готова к выполнению с начала"
     return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,
-            "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC}
+            "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC,"BINARY_CODE":BINARY_CODE}
 
 
 def initialization(array: List[int], code: str, mode: int) -> dict:
@@ -340,4 +348,4 @@ def initialization(array: List[int], code: str, mode: int) -> dict:
     print(PROGRAM_COMMANDS)
     message = "Код программы занесён в память команд, данные занесены в память данных"
     return {"message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS, "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC,
-            "DATA": DATA}
+            "DATA": DATA,"BINARY_CODE":BINARY_CODE}

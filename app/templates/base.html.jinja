@@ -149,30 +149,35 @@
                 </table>
             </div>
             {% block registers %}
-            <h2>Регистры:</h2>
+                <h2>Регистры:</h2>
 
-            <div class="table-container">
-                <table id="table-registers">
-                    <thead>
-                    <tr>
-                        <th>ax</th>
-                        <th>bx</th>
-                        <th>cx</th>
-                        <th>dx</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table id="table-registers">
+                        <thead>
+                        <tr>
+                            <th>ax</th>
+                            <th>bx</th>
+                            <th>cx</th>
+                            <th>dx</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
 
-            </div>
+                </div>
             {% endblock %}
+            <div>
+                <h2>Представление программы в виде машинного кода:</h2>
+        <textarea class="code-input" id="binary_code" placeholder="" readonly>
+        </textarea>
+            </div>
         </div>
     </div>
 </main>

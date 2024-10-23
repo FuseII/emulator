@@ -1,6 +1,7 @@
 // const clickButton = document.querySelector('button');
 // clickButton.addEventListener('click', calculate);
 // clickButton.addEventListener('click', calculate);
+
 const enterDataButton = document.getElementById("enter-data-button")
 enterDataButton.addEventListener('click', enterData);
 const savedBackgroundBtn = enterDataButton.style.background;
@@ -22,6 +23,16 @@ runAllButton.addEventListener('click', run_all);
 runAllButton.disabled = true
 runAllButton.style.background = disabledBackgroundBtn;
 
+// if (window.performance) {
+//     reset();
+//         nextStepButton.disabled = true
+//     resetButton.disabled = true
+//     runAllButton.disabled = true
+//     nextStepButton.style.background = disabledBackgroundBtn;
+//
+//     runAllButton.style.background = disabledBackgroundBtn;
+//     resetButton.style.background = disabledBackgroundBtn;
+// }
 
 async function updateSliderValue(value) {
     // console.log(value)
@@ -139,11 +150,11 @@ async function enterData(event) {
         console.log("array_2 existss!");
         mode = 2;
         for (var i = 1, row; row = array_2.rows[i]; i++) {
-        for (var j = 0, col; col = row.cells[j]; j++) {
-            const input = col.querySelector('input');
-            data.push(parseInt(input.value, 10)); // Получаем значение из input и преобразуем в число
+            for (var j = 0, col; col = row.cells[j]; j++) {
+                const input = col.querySelector('input');
+                data.push(parseInt(input.value, 10)); // Получаем значение из input и преобразуем в число
+            }
         }
-    }
     }
     // Вывод двумерного массива с данными из таблицы
 
@@ -152,7 +163,7 @@ async function enterData(event) {
     // console.log(code_text.value);
     let text = code_text.value
 
-    let send_data = {"array": data, "text": text, "mode":mode};
+    let send_data = {"array": data, "text": text, "mode": mode};
     console.log(send_data);
     //GET запрос?
     try {
@@ -188,6 +199,8 @@ async function enterData(event) {
             nextStepButton.disabled = false;
             runAllButton.style.background = savedBackgroundBtn;
             runAllButton.disabled = false;
+            let binary_code = document.getElementById('binary_code');
+            binary_code.value = result.BINARY_CODE;
         } else {
             alert('Неизвестная ошибка');
         }
@@ -229,6 +242,8 @@ async function next_step(event) {
             program_output_info.value = result.message;
             runAllButton.style.background = disabledBackgroundBtn;
             runAllButton.disabled = true;
+            let binary_code = document.getElementById('binary_code');
+            binary_code.value = result.BINARY_CODE;
             if (result['finished']) {
                 nextStepButton.style.background = disabledBackgroundBtn;
                 nextStepButton.disabled = true;
@@ -272,6 +287,9 @@ async function reset(event) {
             nextStepButton.disabled = false;
             runAllButton.style.background = savedBackgroundBtn;
             runAllButton.disabled = false;
+            let binary_code = document.getElementById('binary_code');
+            binary_code.value = result.BINARY_CODE;
+
         } else {
             alert('Неизвестная ошибка');
         }
@@ -308,6 +326,8 @@ async function run_all(event) {
             nextStepButton.disabled = true;
             runAllButton.style.background = disabledBackgroundBtn;
             runAllButton.disabled = true;
+            let binary_code = document.getElementById('binary_code');
+            binary_code.value = result.BINARY_CODE;
 
         } else {
             alert('Неизвестная ошибка');
