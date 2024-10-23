@@ -1,4 +1,3 @@
-
 from typing import List
 
 from app.exceptions import CommandException
@@ -17,10 +16,14 @@ BINARY_CODE = ''
 
 def is_register(operand: str) -> bool:
     """Является ли операнд регистром"""
-    if operand in ['ax', 'bx', 'cx', 'dx']:
+    if operand in ['ax', 'bx', 'cx', 'dx', 'ex']:
         return True
     else:
         return False
+
+
+def register_number(reg: str) -> int:
+    return ['ax', 'bx', 'cx', 'dx', 'ex'].index(reg)
 
 
 def make_dec(command: str) -> None:
@@ -31,42 +34,56 @@ def make_dec(command: str) -> None:
 
 def make_inc(command: str) -> None:
     """Инструкция INC в ассемблере увеличивает число на единицу."""
+    global BINARY_CODE
+    binary_code = '0x02'
     op1 = command['operands'][0]
     if is_register(op1):
         REGISTERS[op1] = REGISTERS[op1] + 1
+        BINARY_CODE += binary_code + '{:X}'.format(register_number(op1)) + '{0:b}'.format(REGISTERS[op1]) + '\n'
+
 
 
 def make_add(command: str) -> None:
     """Команда add в ассемблере выполняет сложение двух операндов и сохраняет результат в первом операнде (приёмнике)."""
+    global BINARY_CODE
+    binary_code = '0x03'
     op1 = command['operands'][0]
     op2 = command['operands'][1]
     if not op2.isdigit():
         op2 = REGISTERS[op2]
     REGISTERS[op1] = REGISTERS[op1] + op2
+    BINARY_CODE += binary_code +  'B' + f'{REGISTERS[op1]:08b}' + f'{op2:08b}' + '\n'
 
 
 def make_mul(command: str) -> None:
     """Команда mul в ассемблере выполняет умножение двух операндов и сохраняет результат в первом операнде (приёмнике)."""
+    global BINARY_CODE
+    binary_code = '0x04'
     op1 = command['operands'][0]
     op2 = command['operands'][1]
-    if  op2.isdigit():
+    if op2.isdigit():
         op2 = REGISTERS[op2]
         REGISTERS[op1] = REGISTERS[op1] * op2
+        binary_code += 'B' + f'{REGISTERS[op1]:08b}' + f'{op2:08b}' + '\n'
     elif op2[0] == '[' and op2[
         -1] == ']':  # если правый операнд является указателем - получить значение из памяти данных
         op2 = op2[1:-1]
         # print("REGISTERS = ", REGISTERS)
         # print("DATA = ", DATA)
         REGISTERS[op1] *= DATA[REGISTERS[op2]]
+        binary_code += 'B' + f'{REGISTERS[op1]:08b}'+ f'{DATA[REGISTERS[op2]]:08b}' + '\n'
+    BINARY_CODE += binary_code
 
 
 def jump_to_label(label: str) -> None:
     """Находит команду в PROGRAM_COMMANDS и устанавливает счётчик команд(PC) на неё"""
-    global PC
+    binary_code = '0x07'  # код команды cmp
+    global PC, BINARY_CODE
     i = 0
     for cmd in PROGRAM_COMMANDS:
         if cmd['opcode'] == label:
             PC = i
+            BINARY_CODE += binary_code + f'{PC:08b}' + '\n'
             return
         i += 1
     raise CommandException("Нет такой метки '{}'".format(label))
@@ -86,9 +103,12 @@ def make_jge(command: dict) -> None:
     """
     Команда jge ассемблера выполняет условный переход, если значение регистра флагов SF равно единице.
         """
+    global BINARY_CODE
+    binary_code = '0x06'
     if FLAGS['SF']:
         op1 = command['operands'][0] + ':'
         jump_to_label(label=op1)
+    BINARY_CODE += binary_code + '2' + f'{PC:08b}' + '\n'
 
 
 def make_ja(command: dict) -> None:
@@ -106,13 +126,20 @@ def make_cmp(command: dict):
     первое больше второго, разность меньше нуля — второе больше первого, нуль — равны.
     если при вычитании чисел получился нуль, то CMP записывает 1 во флаг ZF, если нет, то записывает во флаг CF 0
      если число положительное и 1 если отрицательное. Флаг знака SF устанавливается, если результат отрицательный"""
+    binary_code = '0x05'  # код команды cmp
     op1 = command['operands'][0]
     op2 = command['operands'][1]
-
     if is_register(op1):  # если операнд регистр
+        op1_type = register_number(op1)
         op1 = REGISTERS[op1]
+    else:
+        op1_type = 5
+
     if is_register(op2):  # если операнд регистр
+        op2_type = register_number(op2)
         op2 = REGISTERS[op2]
+    else:
+        op2_type = 5
     # Установка флагов
     if op1 == op2:
         FLAGS['ZF'] = 1
@@ -128,25 +155,29 @@ def make_cmp(command: dict):
         FLAGS['SF'] = 1
     else:
         FLAGS['SF'] = 0
+    global BINARY_CODE
+    BINARY_CODE += binary_code + '{:X}'.format(op1_type + op2_type) + f'{op1:08b}' + f'{op2:08b}' + '\n'
 
 
 def make_mov(command: dict) -> None:
     """Команда MOV в ассемблере перемещает значение из источника в приёмник. Она копирует содержимое источника
      и помещает его в приёмник, не изменяя при этом никакие флаги.
      Источником и приёмником могут быть регистры общего назначения, сегментные регистры или области памяти."""
-    binary_code = '0x01' #'f'0b{number:08b}'
+    binary_code = '0x01'  # команда mov
     if len(command['operands']) != 2:
         raise CommandException(
             msg="В команде mov несоответствие кол-ву операндов: {}. Должно быть 2".format(len(command['operands'])))
     op1 = command['operands'][0]
     op2 = command['operands'][1]
     global PC
+    op1_type = ''
     if not is_register(op1):  # левый операнд должен быть регистром
         CommandException(msg="Левый операнд {} не является регистром в команде {}".format(op1, command['opcode']))
 
-    if is_register(op1) and is_register(op2):  # если два операнда регистры
+    if is_register(op2):  # если два операнда регистры
         REGISTERS[op1] = REGISTERS[op2]
-        binary_code+='10'+f'{REGISTERS[op2]:08b}'
+        op1_type = register_number(op1)
+        binary_code += '10' + f'{REGISTERS[op2]:08b}'
     elif op2[0] == '[' and op2[
         -1] == ']':  # если правый операнд является указателем - получить значение из памяти данных
         op2 = op2[1:-1]
@@ -161,10 +192,11 @@ def make_mov(command: dict) -> None:
     else:
         raise CommandException(msg="Некорректные операнды в команде {} '{}' '{}'".format(command['opcode'], op1, op2))
     global BINARY_CODE
-    BINARY_CODE+=binary_code+'\n'
+    BINARY_CODE += binary_code + str(op1_type) + '\n'
 
 
 def make_command(command: dict) -> bool:
+    global BINARY_CODE
     finished = False
     if command['opcode'] == 'mov':
         make_mov(command)
@@ -190,6 +222,7 @@ def make_command(command: dict) -> bool:
         pass
     elif command['opcode'] == 'ret':
         print("Program finished")
+        BINARY_CODE += '0x08'
         finished = True
     else:
         raise CommandException("Ошибка: Нет такой команды {}".format(command['opcode']))
@@ -216,7 +249,7 @@ def next_step() -> dict:
     print("PC = {}".format(PC))
     print("PROGRAM_FINISHED = {}".format(PROGRAM_FINISHED))
     return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,
-            "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC,"BINARY_CODE":BINARY_CODE}
+            "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC, "BINARY_CODE": BINARY_CODE}
 
 
 def run_all() -> dict:
@@ -301,7 +334,7 @@ def reset() -> dict:
     REGISTERS['ax'] = 0  # текущий максимум (результат)
     REGISTERS['bx'] = 0  # указатель на массив
     REGISTERS['cx'] = ARRAY_SIZE  # размер массива
-    REGISTERS['dx'] = '-'  # размер массива
+    REGISTERS['dx'] = '-'
     print("ARRAY_SIZE = {}".format(ARRAY_SIZE))
     print("MODE = {}".format(MODE))
     BINARY_CODE = ''
@@ -314,7 +347,7 @@ def reset() -> dict:
         REGISTERS['ex'] = '-'  # промежуточный результат
     message = "Программа готова к выполнению с начала"
     return {"finished": PROGRAM_FINISHED, "message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS,
-            "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC,"BINARY_CODE":BINARY_CODE}
+            "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC, "BINARY_CODE": BINARY_CODE}
 
 
 def initialization(array: List[int], code: str, mode: int) -> dict:
@@ -348,4 +381,4 @@ def initialization(array: List[int], code: str, mode: int) -> dict:
     print(PROGRAM_COMMANDS)
     message = "Код программы занесён в память команд, данные занесены в память данных"
     return {"message": message, "FLAGS": FLAGS, "REGISTERS": REGISTERS, "PROGRAM_COMMANDS": PROGRAM_COMMANDS, "PC": PC,
-            "DATA": DATA,"BINARY_CODE":BINARY_CODE}
+            "DATA": DATA, "BINARY_CODE": BINARY_CODE}

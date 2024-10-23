@@ -11,11 +11,13 @@
     <nav>
         <ul class="menu">
             <li><a href="/">Задание №1</a></li>
-            <li><a href="#">Задание №2</a></li>
+            <li><a href="/pages/task_2">Задание №2</a></li>
             <li><a href="/pages/about">О программе</a></li>
         </ul>
     </nav>
 </header>
+<h1>Отчёт о программе</h1>
+<button id="download-report-button" class="button">Скачать отчёт</button>
 <h1>Задание №1. Поиск максимума в массиве (Архитектура Гарвардская, двухадресная, без знака)</h1>
 <h2>Описание задачи:</h2>
 <p>Написать программу на ассемблере, которая находит максимальный элемент в массиве целых чисел без знака, используя
@@ -25,60 +27,36 @@
 <h2>Выходные данные</h2>
 <p>Максимальный элемент массива, хранящийся в регистре.</p>
 <h2>Регистры</h2>
-<p>• AX: Используется для хранения текущего элемента массива и результата сравнения.<br>
+<p>• AX: Хранит максимальный элемент массива.<br>
     • BX: Указатель на начало массива (хранится в памяти данных).<br>
     • CX: Счетчик элементов массива.<br>
-    • DX: Хранит максимальный элемент массива.</p>
+    • DX: Используется для хранения текущего элемента массива</p>
 <h2>Код:</h2>
-<pre><code><span class="hljs-meta">.model</span> small
-<span class="hljs-meta">.stack</span> <span class="hljs-number">100h</span>
-<span class="hljs-meta">
-.data</span>
-    array <span class="hljs-built_in">dw</span> <span class="hljs-number">10</span>, <span class="hljs-number">5</span>, <span
-            class="hljs-number">2</span>, <span class="hljs-number">8</span>, <span class="hljs-number">12</span>, <span
-            class="hljs-number">7</span>  <span class="hljs-comment">; Массив данных (без знака)</span>
-    array_size <span class="hljs-built_in">dw</span> <span class="hljs-number">6</span>            <span
-            class="hljs-comment">; Размер массива</span>
-    array_ptr <span class="hljs-built_in">dw</span> offset array  <span class="hljs-comment">; Указатель на начало массива</span>
-<span class="hljs-meta">
-.code</span>
-main proc
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, @data         <span
-            class="hljs-comment">; Загрузка сегмента данных</span>
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ds</span>, <span class="hljs-built_in">ax</span>             <span
-            class="hljs-comment">; Установка сегмента данных</span>
-
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">cx</span>, array_size    <span
-            class="hljs-comment">; Загрузка размера массива</span>
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">bx</span>, [array_ptr]     <span
-            class="hljs-comment">; Загрузка указателя на массив</span>
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">dx</span>, [<span class="hljs-built_in">bx</span>]          <span
-            class="hljs-comment">; Инициализация максимального элемента первым элементом</span>
+<pre><code><span class="hljs-meta">section</span> .data
+    array <span class="hljs-built_in">db</span> <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">1</span>, <span class="hljs-number">7</span>, <span class="hljs-number">2</span>, <span class="hljs-number">8</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">9</span>, <span class="hljs-number">0</span>  <span class="hljs-comment">; массив из 10 элементов</span>
+    length <span class="hljs-built_in">db</span> <span class="hljs-number">10</span>                           <span class="hljs-comment">; длина массива</span>
 <span class="hljs-symbol">
-    loop_start:</span>
-        <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, [<span
-            class="hljs-built_in">bx</span>]      <span class="hljs-comment">; Загрузка текущего элемента массива</span>
-        <span class="hljs-keyword">cmp</span> <span class="hljs-built_in">ax</span>, <span
-            class="hljs-built_in">dx</span>          <span class="hljs-comment">; Сравнение с текущим максимальным элементом</span>
-        <span class="hljs-keyword">ja</span> max_found        <span class="hljs-comment">; Если текущий элемент больше - обновляем максимальный</span>
-        <span class="hljs-keyword">add</span> <span class="hljs-built_in">bx</span>, <span class="hljs-number">2</span>            <span
-            class="hljs-comment">; Переход к следующему элементу</span>
-        <span class="hljs-keyword">dec</span> <span class="hljs-built_in">cx</span>              <span
-            class="hljs-comment">; Декремент счетчика</span>
-        <span class="hljs-keyword">jnz</span> loop_start    <span class="hljs-comment">; Цикл по массиву</span>
+_start:</span>
+    <span class="hljs-comment">; Инициализация указателей и переменных</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">cx</span>, [length]                      <span class="hljs-comment">; длина массива</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">bx</span>, [array]                             <span class="hljs-comment">; указатель массива</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, [<span class="hljs-built_in">bx</span>]                  <span class="hljs-comment">; первый элемент массива как текущий максимум</span>
 <span class="hljs-symbol">
-    max_found:</span>
-        <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, <span
-            class="hljs-built_in">dx</span>          <span class="hljs-comment">; Перемещение максимального элемента в AX</span>
+next_element:</span>
+    <span class="hljs-keyword">inc</span> <span class="hljs-built_in">bx</span>                                 <span class="hljs-comment">; переходим к следующему элементу</span>
+    <span class="hljs-keyword">cmp</span> <span class="hljs-built_in">bx</span>, <span class="hljs-built_in">cx</span>                            <span class="hljs-comment">; проверяем, достигли ли конца массива</span>
+    <span class="hljs-keyword">jge</span> finish                              <span class="hljs-comment">; если достигли конца, выходим из цикла</span>
 
-    <span class="hljs-comment">; Вывод результата (добавьте код для вывода результата в соответствии с вашими предпочтениями)</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">dx</span>, [<span class="hljs-built_in">bx</span>]                  <span class="hljs-comment">; загружаем текущий элемент</span>
+    <span class="hljs-keyword">cmp</span> <span class="hljs-built_in">ax</span>, <span class="hljs-built_in">dx</span>                              <span class="hljs-comment">; сравниваем с текущим максимумом</span>
+    <span class="hljs-keyword">jge</span> next_element                        <span class="hljs-comment">; если текущий элемент меньше, переходим к следующему</span>
 
-    <span class="hljs-keyword">mov</span> <span class="hljs-number">ah</span>, <span class="hljs-number">4ch</span>            <span
-            class="hljs-comment">; Код прерывания для завершения программы</span>
-    <span class="hljs-keyword">int</span> <span class="hljs-number">21h</span>               <span class="hljs-comment">; Вызов прерывания</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, <span class="hljs-built_in">dx</span>                              <span class="hljs-comment">; обновляем максимум</span>
 
-main endp
-end main
+    <span class="hljs-keyword">jmp</span> next_element                        <span class="hljs-comment">; продолжаем цикл</span>
+<span class="hljs-symbol">
+finish:</span>
+    <span class="hljs-keyword">ret</span>
 </code></pre>
 <h2>Объяснение</h2>
 <ol>
@@ -115,61 +93,28 @@ end main
     • CX: Указатель на первый элемент массива array2 (хранится в памяти данных).<br>
     • DX: Счетчик элементов массива.</p>
 <h2>Код</h2>
-<pre><code><span class="hljs-meta">.model</span> small
-<span class="hljs-meta">.stack</span> <span class="hljs-number">100h</span>
-<span class="hljs-meta">
-.data</span>
-    array1 <span class="hljs-built_in">dw</span> <span class="hljs-number">5</span>, <span class="hljs-number">2</span>, <span
-            class="hljs-number">7</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>, <span
-            class="hljs-number">3</span>  <span class="hljs-comment">; Первый массив (без знака)</span>
-    array2 <span class="hljs-built_in">dw</span> <span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span
-            class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">0</span>, <span
-            class="hljs-number">2</span>  <span class="hljs-comment">; Второй массив (без знака)</span>
-    array_size <span class="hljs-built_in">dw</span> <span class="hljs-number">6</span>           <span
-            class="hljs-comment">; Размер массива</span>
-    array1_ptr <span class="hljs-built_in">dw</span> offset array1 <span class="hljs-comment">; Указатель на начало массива array1</span>
-    array2_ptr <span class="hljs-built_in">dw</span> offset array2 <span class="hljs-comment">; Указатель на начало массива array2</span>
-<span class="hljs-meta">
-.code</span>
-main proc
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, @data         <span
-            class="hljs-comment">; Загрузка сегмента данных</span>
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ds</span>, <span class="hljs-built_in">ax</span>             <span
-            class="hljs-comment">; Установка сегмента данных</span>
+<pre><code><span class="hljs-meta">.data</span>
+    array_1 <span class="hljs-built_in">dw</span> <span class="hljs-number">5</span>, <span class="hljs-number">2</span>, <span class="hljs-number">7</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>, <span class="hljs-number">3</span>  <span class="hljs-comment">; Первый массив (без знака)</span>
+    array_2 <span class="hljs-built_in">dw</span> <span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>  <span class="hljs-comment">; Второй массив (без знака)</span>
+    array_size <span class="hljs-built_in">dw</span> <span class="hljs-number">12</span>           <span class="hljs-comment">; Размер массива</span>
 
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">bx</span>, [array1_ptr]  <span
-            class="hljs-comment">; Загрузка указателя на начало массива array1</span>
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">cx</span>, [array2_ptr]  <span
-            class="hljs-comment">; Загрузка указателя на начало массива array2</span>
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">dx</span>, array_size    <span
-            class="hljs-comment">; Загрузка размера массива</span>
-    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, <span class="hljs-number">0</span>             <span
-            class="hljs-comment">; Инициализация результата свертки</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">bx</span>, [array_1]  <span class="hljs-comment">; Загрузка указателя на начало массива array1</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">cx</span>, [array_2]  <span class="hljs-comment">; Загрузка указателя на начало массива array2</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">dx</span>, array_size    <span class="hljs-comment">; Загрузка размера массива</span>
+    <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, <span class="hljs-number">0</span>             <span class="hljs-comment">; Инициализация результата свертки</span>
 <span class="hljs-symbol">
     loop_start:</span>
-        <span class="hljs-keyword">mov</span> <span class="hljs-built_in">ax</span>, [<span
-            class="hljs-built_in">bx</span>]      <span class="hljs-comment">; Загрузка текущего элемента array1</span>
-        <span class="hljs-keyword">mul</span> [<span class="hljs-built_in">cx</span>]              <span
-            class="hljs-comment">; Умножение текущих элементов</span>
-        <span class="hljs-keyword">add</span> <span class="hljs-built_in">ax</span>, <span
-            class="hljs-built_in">ax</span>          <span class="hljs-comment">; Сложение с результатом свертки</span>
-        <span class="hljs-keyword">add</span> <span class="hljs-built_in">bx</span>, <span class="hljs-number">2</span>            <span
-            class="hljs-comment">; Переход к следующему элементу array1</span>
-        <span class="hljs-keyword">add</span> <span class="hljs-built_in">cx</span>, <span class="hljs-number">2</span>            <span
-            class="hljs-comment">; Переход к следующему элементу array2</span>
-        <span class="hljs-keyword">dec</span> <span class="hljs-built_in">dx</span>              <span
-            class="hljs-comment">; Декремент счетчика</span>
-        <span class="hljs-keyword">jnz</span> loop_start    <span class="hljs-comment">; Продолжение цикла, если не все элементы обработаны</span>
-
-    <span class="hljs-comment">; Результат свертки хранится в AX</span>
-    <span class="hljs-comment">; Вывод результата (добавьте код для вывода результата в соответствии с вашими предпочтениями)</span>
-
-    <span class="hljs-keyword">mov</span> <span class="hljs-number">ah</span>, <span class="hljs-number">4ch</span>            <span
-            class="hljs-comment">; Код прерывания для завершения программы</span>
-    <span class="hljs-keyword">int</span> <span class="hljs-number">21h</span>               <span class="hljs-comment">; Вызов прерывания</span>
-
-main endp
-end main
+        <span class="hljs-keyword">mov</span> ex, [<span class="hljs-built_in">bx</span>]      <span class="hljs-comment">; Загрузка текущего элемента array1</span>
+        <span class="hljs-keyword">mul</span> ex, [<span class="hljs-built_in">cx</span>]              <span class="hljs-comment">; Умножение текущих элементов</span>
+        <span class="hljs-keyword">add</span> <span class="hljs-built_in">ax</span>, ex          <span class="hljs-comment">; Сложение с результатом свертки</span>
+        <span class="hljs-keyword">inc</span> <span class="hljs-built_in">bx</span>             <span class="hljs-comment">; Переход к следующему элементу array1</span>
+        <span class="hljs-keyword">inc</span> <span class="hljs-built_in">cx</span>             <span class="hljs-comment">; Переход к следующему элементу array2</span>
+        <span class="hljs-keyword">cmp</span> <span class="hljs-built_in">cx</span>, <span class="hljs-built_in">dx</span>              <span class="hljs-comment">; проверяем, достигли ли конца массива</span>
+        <span class="hljs-keyword">jge</span> finish
+        <span class="hljs-keyword">jmp</span> loop_start
+<span class="hljs-symbol">
+    finish:</span>
+        <span class="hljs-keyword">ret</span>
 </code></pre>
 <h2>Объяснение:</h2>
 <ol>
@@ -195,6 +140,6 @@ end main
 <footer>
     <p>&copy; A.Ryanov A.Kutepov @All rights reserved.</p>
 </footer>
-<script src="../static/js/script.js"></script>
+<script src="../static/js/about.js"></script>
 </body>
 </html>

@@ -3,6 +3,7 @@ from typing import List
 from fastapi import APIRouter, Request, Depends, UploadFile, Response, Body
 from fastapi.exceptions import ValidationException, HTTPException
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from app.exceptions import CommandException
@@ -80,3 +81,7 @@ async def run_all_program(request: Request):
         raise HTTPException(status_code=404, detail=exc.msg)
     result["status"] = 200
     return result
+
+@router.get("/file/download")
+def download_file():
+  return FileResponse(path=r'D:\Artem\Magistrature\1_sem\Software_arch\my_labs\emulator\app\report.docx', filename='Отчёт.docx', media_type='multipart/form-data')

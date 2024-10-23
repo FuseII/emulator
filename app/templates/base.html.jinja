@@ -50,6 +50,7 @@
     </div>
     <div>
         <h2>Введите ваш код:</h2>
+    {% block precode %}<p>ax - текущий максимум<br> bx - указатель на массив<br>cx - размер массива</p> {% endblock %}
         <textarea class="code-input" id="code_text" placeholder="Введите ваш код здесь...">
                  {% block code %}
                      next_element:
