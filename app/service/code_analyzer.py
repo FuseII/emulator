@@ -172,7 +172,7 @@ def make_mov(command: dict) -> None:
     global PC
     op1_type = ''
     if not is_register(op1):  # левый операнд должен быть регистром
-        CommandException(msg="Левый операнд {} не является регистром в команде {}".format(op1, command['opcode']))
+        raise CommandException(msg="Левый операнд {} не является регистром в команде {}".format(op1, command['opcode']))
 
     if is_register(op2):  # если два операнда регистры
         REGISTERS[op1] = REGISTERS[op2]
