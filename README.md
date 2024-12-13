@@ -1,4 +1,5 @@
 
+
 # Задание №1. Поиск максимума в массиве (Архитектура Гарвардская, двухадресная, без знака)
 
 
@@ -117,3 +118,14 @@ finish:
 • Гарвардская архитектура: Команды и данные хранятся в разных адресных пространствах. В этом примере, array1_ptr и array2_ptr хранят адреса начала массивов в памяти данных, доступ к которым осуществляется через ds:bx и ds:cx.<br>
 • Двухадресная команда add: В программе используются add bx, 2 и add cx, 2 для перехода к следующему элементу массива.<br>
 • Числа без знака: Программа использует числа без знака, поэтому нет необходимости в команде mul (умножение без знака).
+<img width="915" alt="image" src="https://github.com/user-attachments/assets/6e90a955-144d-4b53-b751-884b180dcc42" />
+<img width="886" alt="image" src="https://github.com/user-attachments/assets/a7f83cf1-e5dc-45e4-a91a-d8bd4aa51afe" />
+<img width="896" alt="image" src="https://github.com/user-attachments/assets/552ab36f-03f2-489c-98db-c8c9b0589653" />
+<img width="904" alt="image" src="https://github.com/user-attachments/assets/f3224c1b-a3b5-466f-aa16-4e66fb06a32a" />
+<img width="892" alt="image" src="https://github.com/user-attachments/assets/5cb84034-6962-486f-afe0-8b53348d848f" />
+<img width="896" alt="image" src="https://github.com/user-attachments/assets/a836ba5f-3d62-45fc-b602-1fa97985d361" />
+<img width="908" alt="image" src="https://github.com/user-attachments/assets/a2ef7409-2fa1-4fff-9d83-ce5b232902e1" />
+
+
+
+
